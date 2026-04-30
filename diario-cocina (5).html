@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<title>Diario·cocina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#f7f2e8;--paper2:#fdfaf2;--ink:#1c1812;--ink2:#4a4239;
+  --muted:#8b8175;--line:#e6dec9;--line2:#d8cdb2;
+  --accent:#5b6b3a;--accent2:#3f4a26;--warn:#a8431f;--gold:#b88a2c;
+  --water:#3a6b8a;--safe-top:env(safe-area-inset-top,0px);
+}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--paper);color:var(--ink);
+  min-height:100vh;
+  background-image:radial-gradient(circle at 1px 1px,rgba(28,24,18,0.05) 1px,transparent 0);
+  background-size:18px 18px;
+  padding-top:var(--safe-top);
+}
+.display{font-family:'Fraunces',serif;font-optical-sizing:auto;letter-spacing:-0.015em}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.card{background:var(--paper2);border:1px solid var(--line);border-radius:8px}
+button{font-family:'Instrument Sans',sans-serif;font-weight:500;cursor:pointer;transition:all .12s}
+button:active{transform:translateY(1px)}
+.btn{background:var(--paper2);border:1px solid var(--line2);border-radius:5px;padding:7px 14px;color:var(--ink);font-size:14px}
+.btn:hover{border-color:var(--ink2);background:#fff}
+.btn-primary{background:var(--accent);color:#fdfaf2;border-color:var(--accent2)}
+.btn-primary:hover{background:var(--accent2);color:#fff}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink2)}
+.btn-ghost:hover{background:rgba(28,24,18,0.06);border-color:transparent}
+.btn-danger{background:transparent;border-color:transparent;color:var(--warn)}
+.btn-danger:hover{background:rgba(168,67,31,0.09)}
+.btn-sm{padding:5px 10px;font-size:13px}
+.btn-xs{padding:3px 8px;font-size:12px}
+input,textarea,select{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--paper2);border:1px solid var(--line2);
+  border-radius:5px;padding:7px 10px;color:var(--ink);
+  outline:none;font-size:14px;width:100%;
+  transition:border-color .12s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,107,58,0.12)}
+input.mono,textarea.mono{font-family:'JetBrains Mono',monospace;font-size:13px}
+.divider{height:1px;background:linear-gradient(to right,transparent,var(--line2) 20%,var(--line2) 80%,transparent);margin:12px 0}
+.tab{padding:6px 14px;border-radius:5px;font-weight:500;cursor:pointer;color:var(--ink2);font-size:14px;background:transparent;border:none;transition:all .12s}
+.tab:hover{color:var(--ink)}
+.tab.active{background:var(--ink);color:var(--paper2)}
+.modal-bg{position:fixed;inset:0;background:rgba(20,16,10,.48);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--paper2);border:1px solid var(--line2);border-radius:10px;max-width:540px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(20,16,10,.25)}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:500;background:rgba(91,107,58,.1);color:var(--accent2);border:1px solid rgba(91,107,58,.2)}
+.pill-warn{background:rgba(168,67,31,.08);color:var(--warn);border-color:rgba(168,67,31,.2)}
+.pill-gold{background:rgba(184,138,44,.1);color:var(--gold);border-color:rgba(184,138,44,.2)}
+.row:hover{background:rgba(28,24,18,.03)}
+.bookmark{border-left:3px solid var(--accent);padding-left:12px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .18s ease-out}
+.toast-el{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper2);padding:10px 20px;border-radius:99px;font-size:14px;font-weight:500;z-index:100;box-shadow:0 8px 24px rgba(20,16,10,.25);animation:fadeIn .18s ease-out;white-space:nowrap}
+.prog-track{height:4px;background:var(--line);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);transition:width .3s}
+.prog-over{background:var(--warn)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+.hs-parent .hs{opacity:0;transition:opacity .12s}
+.hs-parent:hover .hs{opacity:1}
+.warn-bar{background:rgba(168,67,31,.07);border-bottom:1px solid rgba(168,67,31,.18);padding:8px 20px}
+.ok-bar{background:rgba(91,107,58,.07);border-bottom:1px solid rgba(91,107,58,.18);padding:6px 20px}
+.grid-foods{display:grid;grid-template-columns:20px 1fr 70px 52px 52px 52px 52px 80px;gap:8px;align-items:center}
+.grid-week{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 1fr 60px 55px;gap:8px;align-items:center}
+@media(max-width:600px){
+  .grid-foods{grid-template-columns:20px 1fr 60px 44px 44px 44px 90px}
+  .grid-foods .col-fat,.grid-week .col-fat{display:none}
+  .grid-week{grid-template-columns:72px 1fr 1fr 1fr 1fr 50px 48px}
+}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.water-ring{transform:rotate(-90deg);transform-origin:center}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo,useRef,useCallback}=React;
+
+/* ── UTILS ── */
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
+const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const shiftDate=(s,n)=>{const[y,m,d]=s.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+n);return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;};
+const fmtLong=(s)=>{const[y,m,d]=s.split('-').map(Number);const dt=new Date(y,m-1,d);const dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];return `${dias[dt.getDay()]}, ${d} de ${meses[m-1]}`;};
+const fmtShort=(s)=>{const[y,m,d]=s.split('-');return `${d}/${m}/${y}`;};
+const n=(v,dec=1)=>{if(v==null||isNaN(v))return'—';return(+v).toFixed(dec).replace(/\.?0+$/,'');};
+const ni=(v)=>isNaN(v)?'—':Math.round(v).toString();
+const BL={per_100g:'por 100g',per_100ml:'por 100ml',per_unit:'por unidad'};
+const BU={per_100g:'g',per_100ml:'ml',per_unit:'u'};
+
+/* ── STORAGE (localStorage — persists in Safari file:// and web) ── */
+const LS='dc3_';
+const lsGet=(k,fb=null)=>{try{const r=localStorage.getItem(LS+k);return r!==null?JSON.parse(r):fb;}catch{return fb;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(LS+k,JSON.stringify(v));}catch(e){console.warn('storage full?',e);}};
+const lsDel=(k)=>{try{localStorage.removeItem(LS+k);}catch{}};
+
+/* ── MACROS ── */
+const itemMacros=(item,food)=>{
+  if(!food)return{cal:0,protein:0,carbs:0,fat:0,fiber:0};
+  const f=food.basis==='per_unit'?item.amount:item.amount/100;
+  return{cal:(food.cal||0)*f,protein:(food.protein||0)*f,carbs:(food.carbs||0)*f,fat:(food.fat||0)*f,fiber:(food.fiber||0)*f};
+};
+const comboMacros=(combo,foods,mult=1)=>{
+  const a={cal:0,protein:0,carbs:0,fat:0,fiber:0};
+  for(const it of combo.items||[]){const f=foods[it.foodId];if(!f)continue;const m=itemMacros(it,f);a.cal+=m.cal;a.protein+=m.protein;a.carbs+=m.carbs;a.fat+=m.fat;a.fiber+=m.fiber;}
+  return{cal:a.cal*mult,protein:a.protein*mult,carbs:a.carbs*mult,fat:a.fat*mult,fiber:a.fiber*mult};
+};
+const mealMacros=(meal,foods,combos)=>{
+  const a={cal:0,protein:0,carbs:0,fat:0,fiber:0};
+  for(const it of meal.items||[]){
+    const m=it.kind==='combo'?comboMacros(combos[it.comboId]||{items:[]},foods,it.multiplier||1):itemMacros(it,foods[it.foodId]);
+    a.cal+=m.cal;a.protein+=m.protein;a.carbs+=m.carbs;a.fat+=m.fat;a.fiber+=m.fiber;
+  }
+  return a;
+};
+const dayMacros=(day,foods,combos)=>{
+  const a={cal:0,protein:0,carbs:0,fat:0,fiber:0};
+  for(const meal of day?.meals||[]){const m=mealMacros(meal,foods,combos);a.cal+=m.cal;a.protein+=m.protein;a.carbs+=m.carbs;a.fat+=m.fat;a.fiber+=m.fiber;}
+  return a;
+};
+
+/* ── FUZZY SEARCH ── */
+const fuzzy=(q,s)=>{const ql=q.toLowerCase().trim(),sl=s.toLowerCase();if(!ql)return 1;if(sl===ql)return 100;if(sl.startsWith(ql))return 80;if(sl.includes(ql))return 60;if(ql.split(/\s+/).every(w=>sl.includes(w)))return 40;return 0;};
+
+/* ── BACKUP ── */
+const encodeBackup=(foods,combos,days)=>{
+  const data={v:3,foods,combos,days:days||{},ts:Date.now()};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+};
+const decodeBackup=(str)=>{
+  try{const d=JSON.parse(decodeURIComponent(escape(atob(str.trim()))));return(d.v>=2&&d.foods)?d:null;}catch{return null;}
+};
+
+/* ── LABEL TEXT PARSER ── */
+const parseLabelText=(text)=>{
+  if(!text?.trim())return null;
+  const lines=text.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  const nums=(l)=>(l.match(/-?\d+(?:[.,]\d+)?/g)||[]).map(s=>parseFloat(s.replace(',','.')));
+  let portionG=null;
+  for(const l of lines){if(/porci[oó]n|serving/i.test(l)){const m=l.match(/(\d+(?:[.,]\d+)?)\s*g\b/i);if(m)portionG=parseFloat(m[1]);}}
+  const grab=(rx)=>{for(const l of lines){if(rx.test(l.toLowerCase())){const ns=nums(l);if(ns.length)return ns.length>=2?{p:ns[0],h:ns[ns.length-1]}:{s:ns[0]};}}return null;};
+  const cal=grab(/valor energ|calor[ií]as|kcal|energ[ií]a/);
+  const prot=grab(/prote[ií]nas?\b/);
+  const carb=grab(/(carbohidratos?|hidratos? de carbono)/);
+  const fat=grab(/grasas? totales?|grasas?\b/);
+  const fib=grab(/fibra/);
+  const any2=[cal,prot,carb,fat,fib].some(g=>g&&g.p!=null&&g.h!=null&&g.h!==g.p);
+  const pick=(g)=>{if(!g)return null;if(any2)return g.h??g.s??null;if(portionG)return g.p??g.s??null;return g.h??g.s??null;};
+  let c=pick(cal);
+  if(c&&c>900){const l=lines.find(l=>/kcal|kj/i.test(l));if(l){const ns=nums(l);if(ns.length>=2)c=Math.min(...ns);}}
+  return{cal:c,protein:pick(prot),carbs:pick(carb),fat:pick(fat),fiber:pick(fib),portionG,scaledFrom:(!any2&&portionG)?portionG:null};
+};
+
+/* ── SUGGEST MEAL NAME ── */
+const suggestMealName=(names)=>`Colación ${names.filter(n=>/^colaci[oó]n/i.test(n)).length+1}`;
+
+
+
+
+
+/* ── ICONS (inline SVG components) ── */
+const Icon=({d,size=16,stroke='currentColor',fill='none',strokeWidth=2})=>(
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+    <path d={d}/>
+  </svg>
+);
+const IPlus=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+const IX=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const ITrash=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>;
+const IEdit=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
+const IChevL=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>;
+const IChevR=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>;
+const IChevD=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>;
+const ICopy=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>;
+const ICheck=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>;
+const ISearch=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
+const ISettings=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
+const IBook=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>;
+const ILayers=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const IHome=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+const ICal=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const IDrop=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>;
+const IGym=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 9.5v5"/><path d="M21 9.5v5"/><path d="M3 12h18"/><rect x="1" y="9" width="4" height="6" rx="1"/><rect x="19" y="9" width="4" height="6" rx="1"/></svg>;
+const IWeight=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M6 20h12M6 20l-2-8h16l-2 8M9 12V8a3 3 0 0 1 6 0v4"/></svg>;
+const INote=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
+const IDown=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+const IUp=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
+const IWarn=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const ISparkle=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>;
+const IRefresh=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>;
+const IZap=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const ICloud=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>;
+
+/* ── GOOGLE DRIVE SYNC MODULE ── */
+const GDRIVE = {
+  CLIENT_ID: '678927221934-r0uv2tvhl5709i0p7oibbna200j78djl.apps.googleusercontent.com',
+  SCOPE: 'https://www.googleapis.com/auth/drive.appdata',
+  FILE_NAME: 'diario-cocina-data.json',
+  fileId: null,
+  tokenClient: null,
+  accessToken: null,
+  tokenExpiry: 0,
+  initialized: false,
+
+  async _waitForLibs(){
+    let tries=0;
+    while(tries<100){if(window.gapi&&window.google?.accounts?.oauth2)return;await new Promise(r=>setTimeout(r,100));tries++;}
+    throw new Error('Google APIs no cargaron');
+  },
+
+  async init(){
+    if(this.initialized)return;
+    await this._waitForLibs();
+    await new Promise((res,rej)=>gapi.load('client',{callback:res,onerror:rej}));
+    await gapi.client.init({discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']});
+    this.tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:this.CLIENT_ID,
+      scope:this.SCOPE,
+      callback:()=>{}
+    });
+    this.initialized=true;
+  },
+
+  _setToken(resp){
+    this.accessToken=resp.access_token;
+    this.tokenExpiry=Date.now()+(((resp.expires_in||3599)-60)*1000);
+    gapi.client.setToken({access_token:resp.access_token});
+    try{localStorage.setItem('dc3_drive_signed','1');}catch(e){}
+  },
+
+  isTokenValid(){
+    return this.accessToken&&Date.now()<this.tokenExpiry;
+  },
+
+  signIn(interactive=true){
+    return new Promise((resolve,reject)=>{
+      this.tokenClient.callback=(resp)=>{
+        if(resp.error){reject(new Error(resp.error_description||resp.error));return;}
+        this._setToken(resp);
+        resolve(resp);
+      };
+      this.tokenClient.error_callback=(err)=>{
+        reject(new Error(err?.message||err?.type||'Error de autenticación'));
+      };
+      this.tokenClient.requestAccessToken({prompt:interactive?'':'none'});
+    });
+  },
+
+  async ensureToken(){
+    if(this.isTokenValid())return;
+    try{
+      await this.signIn(false);
+    }catch(e){
+      await this.signIn(true);
+    }
+  },
+  },
+
+  signOut(){
+    if(this.accessToken){try{google.accounts.oauth2.revoke(this.accessToken,()=>{});}catch(e){}}
+    this.accessToken=null;
+    this.tokenExpiry=0;
+    this.fileId=null;
+    if(window.gapi?.client)gapi.client.setToken(null);
+    try{localStorage.removeItem('dc3_drive_signed');}catch(e){}
+  },
+
+  async findFile(){
+    await this.ensureToken();
+    const resp=await gapi.client.drive.files.list({
+      spaces:'appDataFolder',
+      q:`name='${this.FILE_NAME}' and trashed=false`,
+      fields:'files(id,modifiedTime)',
+      pageSize:10
+    });
+    const files=resp.result.files||[];
+    if(files.length){this.fileId=files[0].id;return files[0];}
+    this.fileId=null;
+    return null;
+  },
+
+  async load(){
+    await this.ensureToken();
+    if(!this.fileId)await this.findFile();
+    if(!this.fileId)return null;
+    const resp=await gapi.client.drive.files.get({fileId:this.fileId,alt:'media'});
+    if(typeof resp.body==='string'){try{return JSON.parse(resp.body);}catch(e){return null;}}
+    return resp.result||null;
+  },
+
+  async save(data){
+    await this.ensureToken();
+    const body=JSON.stringify(data);
+    if(!this.fileId)await this.findFile();
+    if(!this.fileId){
+      const metadata={name:this.FILE_NAME,parents:['appDataFolder']};
+      const boundary='-------dc314159265';
+      const delim=`\r\n--${boundary}\r\n`;
+      const closeDelim=`\r\n--${boundary}--`;
+      const multipartBody=delim+'Content-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(metadata)+delim+'Content-Type: application/json; charset=UTF-8\r\n\r\n'+body+closeDelim;
+      const resp=await gapi.client.request({path:'/upload/drive/v3/files',method:'POST',params:{uploadType:'multipart',fields:'id,modifiedTime'},headers:{'Content-Type':`multipart/related; boundary="${boundary}"`},body:multipartBody});
+      this.fileId=resp.result.id;
+      return resp.result;
+    }else{
+      const resp=await gapi.client.request({path:`/upload/drive/v3/files/${this.fileId}`,method:'PATCH',params:{uploadType:'media',fields:'id,modifiedTime'},headers:{'Content-Type':'application/json; charset=UTF-8'},body:body});
+      return resp.result;
+    }
+  }
+};
+
+/* ── TOAST ── */
+function Toast({msg}){return <div className="toast-el">{msg}</div>;}
+
+/* ── APP ROOT ── */
+function App(){
+  const[foods,setFoods]=useState(()=>lsGet('foods',{}));
+  const[combos,setCombos]=useState(()=>lsGet('combos',{}));
+  const[usage,setUsage]=useState(()=>lsGet('usage',{}));
+  const[settings,setSettings]=useState(()=>({goals:{cal:null,protein:null,carbs:null,fat:null,fiber:null},showGoals:false,showDist:true,waterGoal:2000,...lsGet('settings',{})}));
+  const[date,setDate]=useState(todayStr);
+  const[day,setDay]=useState(()=>lsGet('day:'+todayStr(),{date:todayStr(),meals:[],notes:'',waterMl:0,weightKg:null,gymDay:false}));
+  const[view,setView]=useState('today');
+  const[modal,setModal]=useState(null);
+  const[toast,setToast]=useState(null);
+
+  const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(null),2000);};
+
+  // Persist everything on change
+  useEffect(()=>lsSet('foods',foods),[foods]);
+  useEffect(()=>lsSet('combos',combos),[combos]);
+  useEffect(()=>lsSet('usage',usage),[usage]);
+  useEffect(()=>lsSet('settings',settings),[settings]);
+  useEffect(()=>{
+    if(!day)return;
+    const empty=!day.meals?.length&&!day.notes&&!day.waterMl&&day.weightKg==null&&!day.gymDay;
+    if(empty)lsDel('day:'+day.date);
+    else lsSet('day:'+day.date,day);
+  },[day]);
+
+  // Load day when date changes
+  useEffect(()=>{
+    setDay(lsGet('day:'+date,{date,meals:[],notes:'',waterMl:0,weightKg:null,gymDay:false}));
+  },[date]);
+
+  // Atajos de teclado globales
+  useEffect(()=>{
+    const onKey=e=>{
+      if(modal)return;
+      const t=e.target;
+      const inField=t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable);
+      if(e.key==='/'&&!inField){
+        e.preventDefault();
+        const inp=document.querySelector('input[placeholder*="Buscar"]');
+        if(inp)inp.focus();
+        return;
+      }
+      if(inField||e.ctrlKey||e.metaKey||e.altKey)return;
+      if(e.key==='?'){e.preventDefault();setModal({type:'help'});return;}
+      if(e.key==='t')setView('today');
+      else if(e.key==='w')setView('week');
+      else if(e.key==='f')setView('foods');
+      else if(e.key==='c')setView('combos');
+      else if(view==='today'&&e.key==='n'){e.preventDefault();setDay(p=>{const meals=p?.meals||[];return{...p,meals:[...meals,{id:uid(),name:suggestMealName(meals.map(m=>m.name)),items:[]}]};});}
+      else if(view==='today'&&e.key==='[')setDate(d=>shiftDate(d,-1));
+      else if(view==='today'&&e.key===']')setDate(d=>shiftDate(d,1));
+    };
+    window.addEventListener('keydown',onKey);
+    return()=>window.removeEventListener('keydown',onKey);
+  },[view,modal]);
+
+  /* ── DRIVE SYNC ── */
+  const[signedIn,setSignedIn]=useState(false);
+  const[syncState,setSyncState]=useState('init'); // 'init'|'idle'|'syncing'|'synced'|'error'|'offline'
+  const[syncErr,setSyncErr]=useState(null);
+  const[lastSyncTs,setLastSyncTs]=useState(()=>parseInt(lsGet('meta_lastSyncTs','0'))||null);
+  const[isOnline,setIsOnline]=useState(()=>typeof navigator!=='undefined'?navigator.onLine:true);
+  const syncRef=useRef({applyingRemote:false,pushTimer:null,initDone:false});
+
+  const buildSnapshot=useCallback(()=>{
+    const days={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith(LS+'day:')){
+        const dateKey=k.replace(LS+'day:','');
+        const d=lsGet('day:'+dateKey,null);
+        if(d)days[dateKey]=d;
+      }
+    }
+    return{
+      v:1,
+      ts:Date.now(),
+      foods:lsGet('foods',{}),
+      combos:lsGet('combos',{}),
+      usage:lsGet('usage',{}),
+      settings:lsGet('settings',{}),
+      days
+    };
+  },[]);
+
+  const applySnapshot=useCallback((snap)=>{
+    if(!snap)return;
+    syncRef.current.applyingRemote=true;
+    // Borrar días viejos del LS
+    const toDel=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith(LS+'day:'))toDel.push(k);
+    }
+    toDel.forEach(k=>localStorage.removeItem(k));
+    // Escribir días nuevos
+    Object.entries(snap.days||{}).forEach(([d,data])=>lsSet('day:'+d,data));
+    // LS principal
+    lsSet('foods',snap.foods||{});
+    lsSet('combos',snap.combos||{});
+    lsSet('usage',snap.usage||{});
+    lsSet('settings',snap.settings||{});
+    // Forzar React state reload
+    setFoods(snap.foods||{});
+    setCombos(snap.combos||{});
+    setUsage(snap.usage||{});
+    setSettings(p=>({...p,...(snap.settings||{})}));
+    setDay(lsGet('day:'+date,{date,meals:[],notes:'',waterMl:0,weightKg:null,gymDay:false}));
+    setTimeout(()=>{syncRef.current.applyingRemote=false;},250);
+  },[date]);
+
+  const pushToCloud=useCallback(async()=>{
+    if(!signedIn||!isOnline)return;
+    setSyncState('syncing');
+    setSyncErr(null);
+    try{
+      const snap=buildSnapshot();
+      const r=await GDRIVE.save(snap);
+      const ts=r.modifiedTime?new Date(r.modifiedTime).getTime():Date.now();
+      lsSet('meta_lastSyncTs',ts);
+      lsSet('meta_localTs',ts);
+      setLastSyncTs(ts);
+      setSyncState('synced');
+    }catch(e){
+      console.error('Push error:',e);
+      setSyncErr(String(e?.message||e));
+      setSyncState('error');
+    }
+  },[signedIn,isOnline,buildSnapshot]);
+
+  const schedulePush=useCallback(()=>{
+    clearTimeout(syncRef.current.pushTimer);
+    syncRef.current.pushTimer=setTimeout(()=>{pushToCloud();},2000);
+  },[pushToCloud]);
+
+  const syncNow=useCallback(async()=>{
+    if(!signedIn||!isOnline)return;
+    setSyncState('syncing');
+    setSyncErr(null);
+    try{
+      const file=await GDRIVE.findFile();
+      if(!file){
+        // Primer sync, subir local
+        await pushToCloud();
+        return;
+      }
+      const remoteTs=new Date(file.modifiedTime).getTime();
+      const localTs=parseInt(lsGet('meta_localTs','0'))||0;
+      const lastSync=parseInt(lsGet('meta_lastSyncTs','0'))||0;
+      const hasLocalChanges=localTs>lastSync;
+      const hasRemoteChanges=remoteTs>lastSync;
+
+      if(!hasLocalChanges&&!hasRemoteChanges){
+        lsSet('meta_lastSyncTs',remoteTs);
+        setLastSyncTs(remoteTs);
+        setSyncState('synced');
+        return;
+      }
+      if(hasRemoteChanges&&!hasLocalChanges){
+        const data=await GDRIVE.load();
+        applySnapshot(data);
+        lsSet('meta_lastSyncTs',remoteTs);
+        lsSet('meta_localTs',remoteTs);
+        setLastSyncTs(remoteTs);
+        setSyncState('synced');
+        return;
+      }
+      if(hasLocalChanges&&!hasRemoteChanges){
+        await pushToCloud();
+        return;
+      }
+      // Conflicto: last-write-wins
+      if(remoteTs>localTs){
+        const data=await GDRIVE.load();
+        applySnapshot(data);
+        lsSet('meta_lastSyncTs',remoteTs);
+        lsSet('meta_localTs',remoteTs);
+        setLastSyncTs(remoteTs);
+        setSyncState('synced');
+      }else{
+        await pushToCloud();
+      }
+    }catch(e){
+      console.error('Sync error:',e);
+      setSyncErr(String(e?.message||e));
+      setSyncState('error');
+    }
+  },[signedIn,isOnline,applySnapshot,pushToCloud]);
+
+  const driveSignIn=useCallback(async(interactive=true)=>{
+    setSyncState('syncing');
+    setSyncErr(null);
+    try{
+      await GDRIVE.init();
+      await GDRIVE.signIn(interactive);
+      setSignedIn(true);
+      await syncNow();
+    }catch(e){
+      console.error('Sign-in error:',e);
+      setSyncErr(String(e?.message||e));
+      setSyncState('error');
+      setSignedIn(false);
+    }
+  },[syncNow]);
+
+  const driveSignOut=useCallback(()=>{
+    GDRIVE.signOut();
+    setSignedIn(false);
+    setSyncState('idle');
+    setSyncErr(null);
+    clearTimeout(syncRef.current.pushTimer);
+    showToast('Drive desconectado');
+  },[]);
+
+  // Init: si el usuario ya estaba logueado, intentar silent sign-in
+  useEffect(()=>{
+    if(syncRef.current.initDone)return;
+    syncRef.current.initDone=true;
+    const wasSigned=localStorage.getItem('dc3_drive_signed')==='1';
+    if(!wasSigned){setSyncState('idle');return;}
+    (async()=>{
+      try{
+        await GDRIVE.init();
+        await GDRIVE.signIn(false);
+        setSignedIn(true);
+        await syncNow();
+      }catch(e){
+        // Silent falló — quedarse en idle, usuario reconecta manualmente
+        setSyncState('idle');
+        setSignedIn(false);
+      }
+    })();
+  },[]);
+
+  // Refresh token al volver al foco/tab
+  useEffect(()=>{
+    const onVisible=async()=>{
+      if(document.visibilityState!=='visible')return;
+      if(!signedIn)return;
+      if(!GDRIVE.isTokenValid()){
+        try{await GDRIVE.ensureToken();}catch(e){setSyncState('error');setSyncErr('Sesión expirada. Reconectá Drive.');setSignedIn(false);return;}
+      }
+      syncNow();
+    };
+    document.addEventListener('visibilitychange',onVisible);
+    return()=>document.removeEventListener('visibilitychange',onVisible);
+  },[signedIn,syncNow]);
+
+  // Online/offline listener
+  useEffect(()=>{
+    const on=()=>{setIsOnline(true);if(signedIn)syncNow();};
+    const off=()=>setIsOnline(false);
+    window.addEventListener('online',on);
+    window.addEventListener('offline',off);
+    return()=>{window.removeEventListener('online',on);window.removeEventListener('offline',off);};
+  },[signedIn,syncNow]);
+
+  // Schedule push en cada cambio (excepto si es por aplicar remoto)
+  useEffect(()=>{
+    if(!signedIn)return;
+    if(syncRef.current.applyingRemote)return;
+    if(syncState==='init')return;
+    lsSet('meta_localTs',Date.now());
+    schedulePush();
+    // eslint-disable-next-line
+  },[foods,combos,usage,settings,day,signedIn]);
+
+  const dm=useMemo(()=>dayMacros(day,foods,combos),[day,foods,combos]);
+
+  // Mutators
+  const upsertFood=f=>setFoods(p=>({...p,[f.id]:f}));
+  const removeFood=id=>setFoods(p=>{const n={...p};delete n[id];return n;});
+  const bulkFoods=arr=>setFoods(p=>{const n={...p};arr.forEach(f=>n[f.id]=f);return n;});
+  const upsertCombo=c=>setCombos(p=>({...p,[c.id]:c}));
+  const removeCombo=id=>setCombos(p=>{const n={...p};delete n[id];return n;});
+  const trackUsage=(foodId,amount)=>setUsage(p=>({...p,[foodId]:{count:(p[foodId]?.count||0)+1,lastUsed:Date.now(),lastAmount:amount}}));
+  const addMeal=name=>setDay(p=>{const meals=p?.meals||[];return{...p,meals:[...meals,{id:uid(),name:name||suggestMealName(meals.map(m=>m.name)),items:[]}]};});
+  const renameMeal=(mid,name)=>setDay(p=>({...p,meals:p.meals.map(m=>m.id===mid?{...m,name}:m)}));
+  const removeMeal=mid=>setDay(p=>({...p,meals:p.meals.filter(m=>m.id!==mid)}));
+  const addItem=(mid,item)=>{
+    setDay(p=>({...p,meals:p.meals.map(m=>m.id===mid?{...m,items:[...m.items,{id:uid(),...item}]}:m)}));
+    if(item.kind==='food')trackUsage(item.foodId,item.amount);
+  };
+  const updateItem=(mid,iid,patch)=>setDay(p=>({...p,meals:p.meals.map(m=>m.id===mid?{...m,items:m.items.map(it=>it.id===iid?{...it,...patch}:it)}:m)}));
+  const removeItem=(mid,iid)=>setDay(p=>({...p,meals:p.meals.map(m=>m.id===mid?{...m,items:m.items.filter(it=>it.id!==iid)}:m)}));
+
+  const doBackup=async()=>{
+    // Collect all days from localStorage
+    const days={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith(LS+'day:')){
+        const dateKey=k.replace(LS+'day:','');
+        days[dateKey]=JSON.parse(localStorage.getItem(k));
+      }
+    }
+    const str=encodeBackup(foods,combos,days);
+    try{await navigator.clipboard.writeText(str);showToast('✓ Backup copiado — pegalo en Notas');}
+    catch{window.prompt('Guardá este texto en tus Notas:',str);}
+  };
+  const doRestore=(data)=>{
+    setFoods(data.foods||{});
+    if(data.combos)setCombos(data.combos);
+    if(data.days){Object.entries(data.days).forEach(([d,v])=>lsSet('day:'+d,v));}
+    setDay(lsGet('day:'+date,{date,meals:[],notes:'',waterMl:0,weightKg:null,gymDay:false}));
+    showToast(`Restaurado: ${Object.keys(data.foods||{}).length} alimentos`);
+  };
+
+  const duplicateDay=targetDate=>{
+    if(!day?.meals?.length)return;
+    const existing=lsGet('day:'+targetDate,{date:targetDate,meals:[],notes:'',waterMl:0});
+    const newMeals=day.meals.map(m=>({...m,id:uid(),items:m.items.map(it=>({...it,id:uid()}))}));
+    const merged={...existing,meals:[...existing.meals,...newMeals]};
+    lsSet('day:'+targetDate,merged);
+    showToast('Comidas copiadas a '+fmtShort(targetDate));
+  };
+
+  return (
+    <div style={{minHeight:'100vh'}}>
+      {/* HEADER */}
+      <header style={{borderBottom:'1px solid var(--line)',padding:'12px 20px',background:'var(--paper2)',position:'sticky',top:0,zIndex:20,backdropFilter:'blur(8px)'}}>
+        <div style={{maxWidth:900,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}>
+          <div style={{display:'flex',alignItems:'baseline',gap:6}}>
+            <span className="display" style={{fontSize:22,fontWeight:600,letterSpacing:'-0.02em'}}>Diario<span style={{color:'var(--accent)'}}>·</span>cocina</span>
+          </div>
+          <nav style={{display:'flex',gap:2,flexWrap:'wrap'}}>
+            {[['today','Hoy',<IHome s={13}/>],['week','Semana',<ICal s={13}/>],['foods','Alimentos',<IBook s={13}/>],['combos','Combos',<ILayers s={13}/>]].map(([v,label,icon])=>(
+              <button key={v} className={`tab${view===v?' active':''}`} onClick={()=>setView(v)} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:13}}>
+                {icon}{label}
+              </button>
+            ))}
+            <button className="tab" title={signedIn?(syncState==='syncing'?'Sincronizando…':syncState==='error'?'Error de sincronización':syncState==='synced'?'Drive sincronizado':!isOnline?'Sin conexión':'Drive'):'Conectar Google Drive'} onClick={()=>setModal({type:'drive'})} style={{padding:'6px 8px',position:'relative'}}>
+              <ICloud s={15} style={{color:!signedIn?'var(--muted)':!isOnline?'var(--muted)':syncState==='syncing'?'var(--accent2)':syncState==='error'?'var(--warn)':syncState==='synced'?'var(--accent)':'var(--ink2)'}}/>
+              {signedIn&&<span style={{position:'absolute',bottom:4,right:4,width:6,height:6,borderRadius:'50%',background:!isOnline?'var(--muted)':syncState==='syncing'?'var(--accent2)':syncState==='error'?'var(--warn)':syncState==='synced'?'var(--accent)':'var(--muted)'}}/>}
+            </button>
+            <button className="tab" title="Atajos (?)" onClick={()=>setModal({type:'help'})} style={{padding:'6px 8px',fontWeight:600}}>?</button>
+            <button className="tab" onClick={()=>setModal({type:'settings'})} style={{padding:'6px 8px'}}><ISettings s={15}/></button>
+          </nav>
+        </div>
+      </header>
+
+      {/* BACKUP BAR */}
+      <BackupBar foods={foods} combos={combos} onBackup={doBackup} onRestore={doRestore}/>
+
+      {/* MAIN */}
+      <main style={{maxWidth:900,margin:'0 auto',padding:'20px 16px'}}>
+        {view==='today'&&<TodayView date={date} setDate={setDate} day={day} setDay={setDay} foods={foods} combos={combos} settings={settings} dm={dm} addMeal={addMeal} renameMeal={renameMeal} removeMeal={removeMeal} addItem={addItem} updateItem={updateItem} removeItem={removeItem} setModal={setModal} showToast={showToast} duplicateDay={duplicateDay}/>}
+        {view==='week'&&<WeekView foods={foods} combos={combos} settings={settings} onGoToDate={d=>{setDate(d);setView('today');}}/>}
+        {view==='foods'&&<FoodsView foods={foods} combos={combos} usage={usage} onAdd={()=>setModal({type:'foodForm'})} onEdit={f=>setModal({type:'foodForm',food:f})} onRemove={id=>{const u=Object.values(combos).filter(c=>c.items?.some(i=>i.foodId===id));if(u.length&&!window.confirm(`Usado en ${u.length} combo(s). ¿Eliminar?`))return;removeFood(id);showToast('Eliminado');}} onBulk={()=>setModal({type:'bulk'})} onBackup={doBackup} onRestore={doRestore}/>}
+        {view==='combos'&&<CombosView combos={combos} foods={foods} onAdd={()=>setModal({type:'comboForm'})} onEdit={c=>setModal({type:'comboForm',combo:c})} onRemove={id=>{removeCombo(id);showToast('Combo eliminado');}}/>}
+      </main>
+
+      {/* MODALS */}
+      {modal?.type==='addItem'&&<AddItemModal foods={foods} combos={combos} usage={usage} onClose={()=>setModal(null)} onAdd={item=>{addItem(modal.mealId,item);setModal(null);}} onNewFood={()=>setModal({type:'foodForm',returnTo:modal})}/>}
+      {modal?.type==='editItem'&&<EditItemModal foods={foods} combos={combos} item={modal.item} onClose={()=>setModal(null)} onSave={patch=>{updateItem(modal.mealId,modal.item.id,patch);setModal(null);}}/>}
+      {modal?.type==='foodForm'&&<FoodFormModal food={modal.food} onClose={()=>{if(modal.returnTo)setModal(modal.returnTo);else setModal(null);}} onSave={f=>{upsertFood(f);showToast(modal.food?'Actualizado':'Creado');if(modal.returnTo)setModal(modal.returnTo);else setModal(null);}}/>}
+      {modal?.type==='comboForm'&&<ComboFormModal combo={modal.combo} foods={foods} onClose={()=>setModal(null)} onSave={c=>{upsertCombo(c);showToast(modal.combo?'Combo actualizado':'Combo creado');setModal(null);}}/>}
+      {modal?.type==='bulk'&&<BulkModal onClose={()=>setModal(null)} onImport={arr=>{bulkFoods(arr);showToast(`${arr.length} alimentos importados`);setModal(null);}}/>}
+      {modal?.type==='export'&&<ExportModal day={day} foods={foods} combos={combos} onClose={()=>setModal(null)} showToast={showToast}/>}
+      {modal?.type==='settings'&&<SettingsModal settings={settings} onClose={()=>setModal(null)} onSave={s=>{setSettings(s);setModal(null);showToast('Guardado');}}/>}
+      {modal?.type==='dupDay'&&<DupDayModal currentDate={date} onClose={()=>setModal(null)} onDup={d=>{duplicateDay(d);setModal(null);}}/>}
+      {modal?.type==='help'&&<HelpModal onClose={()=>setModal(null)}/>}
+      {modal?.type==='drive'&&<DriveModal onClose={()=>setModal(null)} signedIn={signedIn} syncState={syncState} syncErr={syncErr} lastSyncTs={lastSyncTs} isOnline={isOnline} onSignIn={()=>driveSignIn(true)} onSignOut={driveSignOut} onSyncNow={syncNow}/>}
+
+      {toast&&<Toast msg={toast}/>}
+    </div>
+  );
+}
+
+/* ── BACKUP BAR ── */
+function BackupBar({foods,combos,onBackup,onRestore}){
+  const[showImport,setShowImport]=useState(false);
+  const[importText,setImportText]=useState('');
+  const hasFoods=Object.keys(foods).length>0;
+  const doImport=()=>{const d=decodeBackup(importText.trim());if(!d){alert('Texto inválido');return;}onRestore(d);setShowImport(false);setImportText('');};
+  return(
+    <div className="warn-bar">
+      <div style={{maxWidth:900,margin:'0 auto'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+          <span style={{fontSize:12,color:'var(--warn)',flex:1,display:'flex',alignItems:'center',gap:5}}>
+            <IWarn s={13}/> Los datos persisten en este navegador. <strong>Hacé backup</strong> regularmente para no perderlos.
+          </span>
+          {hasFoods&&<button className="btn btn-xs" style={{borderColor:'rgba(168,67,31,.3)',color:'var(--warn)'}} onClick={onBackup}><ICopy s={11}/> Backup</button>}
+          <button className="btn btn-xs" style={{borderColor:'rgba(168,67,31,.3)',color:'var(--warn)'}} onClick={()=>setShowImport(v=>!v)}><IUp s={11}/> Restaurar</button>
+        </div>
+        {showImport&&(
+          <div style={{display:'flex',gap:8,marginTop:8}}>
+            <input style={{flex:1,fontSize:12}} placeholder="Pegá tu backup…" value={importText} onChange={e=>setImportText(e.target.value)} autoFocus/>
+            <button className="btn btn-primary btn-xs" onClick={doImport} disabled={!importText.trim()}>OK</button>
+            <button className="btn btn-ghost btn-xs" onClick={()=>{setShowImport(false);setImportText('');}}>×</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── TODAY VIEW ── */
+function TodayView({date,setDate,day,setDay,foods,combos,settings,dm,addMeal,renameMeal,removeMeal,addItem,updateItem,removeItem,setModal,showToast,duplicateDay}){
+  const[notesOpen,setNotesOpen]=useState(false);
+  const meals=day?.meals||[];
+  const waterMl=day?.waterMl||0;
+  const weightKg=day?.weightKg??null;
+  const gymDay=day?.gymDay||false;
+
+  const copyFromYesterday=()=>{
+    const yest=shiftDate(date,-1);
+    const yDay=lsGet('day:'+yest,null);
+    if(!yDay?.meals?.length){showToast('Sin comidas ayer');return;}
+    const newMeals=yDay.meals.map(m=>({...m,id:uid(),items:m.items.map(it=>({...it,id:uid()}))}));
+    setDay(p=>({...p,meals:[...(p.meals||[]),...newMeals]}));
+    showToast(`${newMeals.length} comidas copiadas`);
+  };
+
+  return(
+    <div className="fade-in">
+      {/* Date nav */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:16,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:6}}>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={()=>setDate(shiftDate(date,-1))}><IChevL/></button>
+          <div>
+            <div className="display" style={{fontSize:19,fontWeight:600,textTransform:'capitalize',lineHeight:1.1}}>{fmtLong(date)}</div>
+            <div className="mono" style={{fontSize:11,color:'var(--muted)'}}>{fmtShort(date)}</div>
+          </div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={()=>setDate(shiftDate(date,1))}><IChevR/></button>
+          <input type="date" value={date} onChange={e=>setDate(e.target.value)} style={{width:'auto',fontSize:12,padding:'4px 6px'}}/>
+          {date!==todayStr()&&<button className="btn btn-ghost btn-xs" onClick={()=>setDate(todayStr())}>hoy</button>}
+        </div>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          <button className="btn btn-ghost btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>setNotesOpen(v=>!v)}><INote s={13}/>Nota</button>
+          <button className="btn btn-ghost btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4,color:gymDay?'var(--accent)':'',borderColor:gymDay?'var(--accent)':''}} onClick={()=>setDay(p=>({...p,gymDay:!p.gymDay}))}><IGym s={13}/>{gymDay?'Gym ✓':'Gym'}</button>
+          <button className="btn btn-ghost btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={copyFromYesterday}><ICopy s={13}/>De ayer</button>
+          <button className="btn btn-ghost btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>setModal({type:'dupDay'})} disabled={!meals.length}><ICopy s={13}/>Duplicar</button>
+          <button className="btn btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>setModal({type:'export'})} disabled={!meals.length}><IDown s={13}/>Exportar</button>
+        </div>
+      </div>
+
+      {notesOpen&&(
+        <div className="card fade-in" style={{padding:12,marginBottom:12}}>
+          <div style={{fontSize:11,color:'var(--muted)',marginBottom:4}}>Notas del día</div>
+          <textarea rows={2} placeholder="Ej: Entrené pesado, día de viaje…" value={day?.notes||''} onChange={e=>setDay(p=>({...p,notes:e.target.value}))} style={{resize:'vertical'}}/>
+        </div>
+      )}
+
+      {/* Totals */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr auto auto',gap:12,marginBottom:16}}>
+        <DayCard dm={dm} settings={settings}/>
+        <WaterCard waterMl={waterMl} goal={settings.waterGoal||2000} onChange={ml=>setDay(p=>({...p,waterMl:Math.max(0,ml)}))}/>
+        <WeightCard weightKg={weightKg} onChange={kg=>setDay(p=>({...p,weightKg:kg}))}/>
+      </div>
+
+      {/* Meals */}
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {meals.length===0&&(
+          <div className="card" style={{padding:32,textAlign:'center'}}>
+            <div className="display" style={{fontSize:17,color:'var(--ink2)'}}>Día en blanco.</div>
+            <div style={{fontSize:13,color:'var(--muted)',marginTop:4}}>Agregá tu primera colación.</div>
+          </div>
+        )}
+        {meals.map(meal=>(
+          <MealCard key={meal.id} meal={meal} date={date} foods={foods} combos={combos}
+            onRename={name=>renameMeal(meal.id,name)}
+            onRemove={()=>removeMeal(meal.id)}
+            onAddItem={()=>setModal({type:'addItem',mealId:meal.id})}
+            onEditItem={item=>setModal({type:'editItem',mealId:meal.id,item})}
+            onRemoveItem={iid=>removeItem(meal.id,iid)}
+            onQuickAdd={item=>addItem(meal.id,item)}
+            showToast={showToast}
+          />
+        ))}
+      </div>
+
+      {/* Add meal */}
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:14}}>
+        <button className="btn btn-primary btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>addMeal()}><IPlus s={14}/>Colación</button>
+        {['Cena','Desayuno','Almuerzo'].map(n=>(
+          <button key={n} className="btn btn-sm" onClick={()=>addMeal(n)}>+ {n}</button>
+        ))}
+        <button className="btn btn-sm" onClick={()=>{const nm=prompt('Nombre:');if(nm?.trim())addMeal(nm.trim());}}>+ Otra…</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── DAY CARD ── */
+function DayCard({dm,settings}){
+  const g=settings.goals||{};
+  const sg=settings.showGoals;
+  const sd=settings.showDist;
+  const tot=dm.protein*4+dm.carbs*4+dm.fat*9;
+  const pct=v=>tot>0?Math.round(v/tot*100):0;
+  return(
+    <div className="card" style={{padding:'14px 16px',borderLeft:'3px solid var(--accent)'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:10}}>
+        <span style={{fontSize:12,color:'var(--ink2)',fontWeight:500}}>Total del día</span>
+        <span className="mono" style={{fontSize:20,fontWeight:600}}>{ni(dm.cal)}<span style={{fontSize:11,color:'var(--muted)',marginLeft:2}}>kcal</span></span>
+      </div>
+      <div style={{display:'flex',flexWrap:'wrap',gap:12}}>
+        {[['Proteínas',dm.protein,'protein'],['Carbohidr.',dm.carbs,'carbs'],['Grasas',dm.fat,'fat'],['Fibra',dm.fiber,'fiber']].map(([label,val,key])=>(
+          <div key={key}>
+            <div style={{fontSize:10,textTransform:'uppercase',letterSpacing:'0.06em',color:'var(--muted)'}}>{label}</div>
+            <div className="mono" style={{fontSize:15,fontWeight:600,marginTop:2}}>{n(val,1)}<span style={{fontSize:10,color:'var(--muted)',marginLeft:1}}>g</span></div>
+            {sg&&g[key]&&(<><div className="prog-track" style={{marginTop:4,width:70}}><div className={`prog-fill${val>g[key]?' prog-over':''}`} style={{width:`${Math.min(100,val/g[key]*100)}%`}}/></div><div className="mono" style={{fontSize:9,color:'var(--muted)',marginTop:1}}>{ni(val)}/{ni(g[key])}</div></>)}
+          </div>
+        ))}
+      </div>
+      {sd&&tot>0&&(
+        <div style={{marginTop:10,paddingTop:10,borderTop:'1px solid var(--line)'}}>
+          <div style={{display:'flex',height:6,borderRadius:99,overflow:'hidden',gap:1}}>
+            <div style={{width:`${pct(dm.protein*4)}%`,background:'#6b8fde',transition:'width .3s'}}/>
+            <div style={{width:`${pct(dm.carbs*4)}%`,background:'#d4a83c',transition:'width .3s'}}/>
+            <div style={{width:`${pct(dm.fat*9)}%`,background:'#d47a3c',transition:'width .3s'}}/>
+          </div>
+          <div style={{display:'flex',gap:10,marginTop:4}}>
+            {[['#6b8fde',`P ${pct(dm.protein*4)}%`],['#d4a83c',`C ${pct(dm.carbs*4)}%`],['#d47a3c',`G ${pct(dm.fat*9)}%`]].map(([col,label])=>(
+              <span key={label} className="mono" style={{fontSize:10,color:'var(--muted)',display:'inline-flex',alignItems:'center',gap:3}}>
+                <span style={{width:8,height:8,background:col,borderRadius:2,display:'inline-block'}}/>
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── WATER CARD ── */
+function WaterCard({waterMl,goal,onChange}){
+  const pct=Math.min(100,waterMl/goal*100);
+  const r=22,circ=2*Math.PI*r;
+  const[editing,setEditing]=useState(false);
+  const[val,setVal]=useState('');
+  const startEdit=()=>{setVal(String(waterMl));setEditing(true);};
+  const commit=()=>{const v=parseInt(val);if(!isNaN(v)&&v>=0)onChange(v);setEditing(false);};
+  return(
+    <div className="card" style={{padding:12,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'space-between',minWidth:84}}>
+      <div style={{fontSize:10,textTransform:'uppercase',letterSpacing:'0.06em',color:'var(--muted)',marginBottom:6}}>Agua</div>
+      <div style={{position:'relative',width:52,height:52,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <svg width={52} height={52} style={{position:'absolute'}}>
+          <circle cx={26} cy={26} r={r} fill="none" stroke="var(--line)" strokeWidth={4}/>
+          <circle className="water-ring" cx={26} cy={26} r={r} fill="none" stroke="var(--water)" strokeWidth={4}
+            strokeDasharray={circ} strokeDashoffset={circ*(1-pct/100)} strokeLinecap="round"
+            style={{transformOrigin:'26px 26px',transition:'stroke-dashoffset .4s'}}/>
+        </svg>
+        <IDrop s={15} style={{color:'var(--water)'}}/>
+      </div>
+      {editing?(
+        <input
+          className="mono"
+          type="number"
+          style={{width:72,fontSize:12,padding:'2px 4px',marginTop:4,textAlign:'center',color:'var(--water)'}}
+          value={val}
+          onChange={e=>setVal(e.target.value)}
+          onBlur={commit}
+          onKeyDown={e=>{if(e.key==='Enter')commit();if(e.key==='Escape')setEditing(false);}}
+          autoFocus
+        />
+      ):(
+        <div
+          className="mono"
+          title="Tocá para editar"
+          style={{fontSize:13,fontWeight:600,color:'var(--water)',marginTop:4,cursor:'pointer',borderBottom:'1px dashed var(--water)'}}
+          onClick={startEdit}
+        >{waterMl<1000?`${waterMl}ml`:`${(waterMl/1000).toFixed(1)}L`}</div>
+      )}
+      <div className="mono" style={{fontSize:10,color:'var(--muted)'}}>{Math.round(waterMl/250)} vasos</div>
+      <div style={{display:'flex',gap:4,marginTop:6}}>
+        <button className="btn btn-ghost" style={{padding:'3px 8px',fontSize:14}} onClick={()=>onChange(waterMl-250)}>−</button>
+        <button className="btn btn-primary" style={{padding:'3px 8px',fontSize:14}} onClick={()=>onChange(waterMl+250)}>+</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── WEIGHT CARD ── */
+function WeightCard({weightKg,onChange}){
+  const[editing,setEditing]=useState(false);
+  const[val,setVal]=useState('');
+  const startEdit=()=>{setVal(weightKg!=null?String(weightKg):'');setEditing(true);};
+  const commit=()=>{const v=parseFloat(val.replace(',','.'));onChange(isNaN(v)||v<=0?null:v);setEditing(false);};
+  return(
+    <div className="card" style={{padding:12,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'space-between',minWidth:72}}>
+      <div style={{fontSize:10,textTransform:'uppercase',letterSpacing:'0.06em',color:'var(--muted)',marginBottom:6}}>Peso</div>
+      <IWeight s={20} style={{color:'var(--ink2)',opacity:.6}}/>
+      {editing?(
+        <input className="mono" type="number" step="0.1"
+          style={{width:72,fontSize:12,padding:'2px 4px',marginTop:6,textAlign:'center'}}
+          value={val} onChange={e=>setVal(e.target.value)}
+          onBlur={commit} onKeyDown={e=>{if(e.key==='Enter')commit();if(e.key==='Escape')setEditing(false);}}
+          autoFocus/>
+      ):(
+        <div className="mono" title="Tocá para editar"
+          style={{fontSize:13,fontWeight:600,marginTop:6,cursor:'pointer',borderBottom:'1px dashed var(--line2)',color:weightKg?'var(--ink)':'var(--muted)'}}
+          onClick={startEdit}>{weightKg!=null?`${weightKg} kg`:'— kg'}</div>
+      )}
+      <div className="mono" style={{fontSize:9,color:'var(--muted)',marginTop:2,visibility:'hidden'}}>.</div>
+    </div>
+  );
+}
+
+
+function MealCard({meal,date,foods,combos,onRename,onRemove,onAddItem,onEditItem,onRemoveItem,onQuickAdd,showToast}){
+  const[open,setOpen]=useState(true);
+  const[editName,setEditName]=useState(false);
+  const[nameVal,setNameVal]=useState(meal.name);
+  const mm=useMemo(()=>mealMacros(meal,foods,combos),[meal,foods,combos]);
+  useEffect(()=>setNameVal(meal.name),[meal.name]);
+  const copyMeal=async()=>{
+    const rows=[];
+    for(const it of meal.items){
+      if(it.kind==='combo'){const c=combos[it.comboId];if(!c)continue;const m=comboMacros(c,foods,it.multiplier||1);rows.push([fmtShort(date),meal.name,`[Combo] ${c.name}`,it.multiplier||1,'x',n(m.cal,1),n(m.protein,1),n(m.carbs,1),n(m.fat,1),n(m.fiber,1)]);}
+      else{const f=foods[it.foodId];if(!f)continue;const m=itemMacros(it,f);rows.push([fmtShort(date),meal.name,f.name,it.amount,BU[f.basis],n(m.cal,1),n(m.protein,1),n(m.carbs,1),n(m.fat,1),n(m.fiber,1)]);}
+    }
+    try{await navigator.clipboard.writeText(rows.map(r=>r.join('\t')).join('\n'));showToast('Copiado');}catch{showToast('No se pudo copiar');}
+  };
+  return(
+    <div className="card" style={{overflow:'hidden'}}>
+      {/* Header */}
+      <div style={{background:'linear-gradient(to bottom,var(--paper),var(--paper2))',borderBottom:'1px solid var(--line)',padding:'10px 12px',display:'flex',alignItems:'center',gap:8}}>
+        <button className="btn btn-ghost" style={{padding:'2px 4px'}} onClick={()=>setOpen(v=>!v)}>{open?<IChevD s={15}/>:<IChevR s={15}/>}</button>
+        {editName
+          ?<input className="display" style={{flex:1,fontSize:14,fontWeight:500,padding:'2px 6px'}} value={nameVal} onChange={e=>setNameVal(e.target.value)} onBlur={()=>{if(nameVal.trim())onRename(nameVal.trim());setEditName(false);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();if(e.key==='Escape'){setNameVal(meal.name);setEditName(false);}}} autoFocus/>
+          :<div className="display" style={{flex:1,fontSize:14,fontWeight:500,cursor:'pointer'}} onClick={()=>setEditName(true)}>{meal.name}</div>
+        }
+        <div className="mono" style={{fontSize:10,color:'var(--muted)',display:'none'}}>{ni(mm.cal)} kcal</div>
+        <span className="mono" style={{fontSize:11,color:'var(--muted)',flexShrink:0}}>{ni(mm.cal)} kcal · P {n(mm.protein,1)} · C {n(mm.carbs,1)} · G {n(mm.fat,1)}</span>
+        <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={copyMeal}><ICopy s={13}/></button>
+        <button className="btn btn-danger" style={{padding:'4px 6px'}} onClick={onRemove}><ITrash s={13}/></button>
+      </div>
+      {/* Items */}
+      {open&&(
+        <div>
+          {meal.items.length===0&&<div style={{padding:'10px 14px',fontSize:13,color:'var(--muted)'}}>Vacío.</div>}
+          {meal.items.map(item=><ItemRow key={item.id} item={item} foods={foods} combos={combos} onEdit={()=>onEditItem(item)} onRemove={()=>onRemoveItem(item.id)}/>)}
+          <QuickAdd foods={foods} onAdd={onQuickAdd} onOpenModal={onAddItem}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── QUICK ADD ── */
+function QuickAdd({foods,onAdd,onOpenModal}){
+  const[q,setQ]=useState('');
+  const[sugg,setSugg]=useState([]);
+  const[pending,setPending]=useState(null);
+  const[amt,setAmt]=useState('');
+  const foodsArr=useMemo(()=>Object.values(foods),[foods]);
+  useEffect(()=>{
+    const text=q.trim();
+    if(!text||pending){setSugg([]);return;}
+    const match=text.match(/^(.+?)\s+(\d+(?:[.,]\d+)?)$/);
+    const tp=match?match[1]:text;
+    const scored=foodsArr.map(f=>({f,s:fuzzy(tp,f.name)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,5);
+    setSugg(scored.map(x=>({food:x.f,pre:match?parseFloat(match[2].replace(',','.')):null})));
+  },[q,foods,pending]);
+  const select=(food,pre)=>{setPending(food);setSugg([]);if(pre)setAmt(String(pre));else setAmt('');};
+  const submit=()=>{
+    const a=parseFloat(amt.replace(',','.'));
+    if(!pending||!a||a<=0)return;
+    onAdd({kind:'food',foodId:pending.id,amount:a});
+    setPending(null);setAmt('');setQ('');
+  };
+  return(
+    <div style={{padding:'8px 12px',borderTop:'1px solid var(--line)',position:'relative'}}>
+      {!pending?(
+        <>
+          <div style={{display:'flex',gap:6}}>
+            <div style={{position:'relative',flex:1}}>
+              <IZap s={12} style={{position:'absolute',left:9,top:'50%',transform:'translateY(-50%)',color:'var(--muted)',pointerEvents:'none'}}/>
+              <input style={{paddingLeft:28,fontSize:13}} placeholder='Agregar rápido: "yogur 150"…' value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>{if(e.key==='Escape')setQ('');if(e.key==='Enter'&&sugg.length)select(sugg[0].food,sugg[0].pre);}}/>
+            </div>
+            <button className="btn btn-ghost" style={{padding:'4px 10px',flexShrink:0,display:'inline-flex',alignItems:'center',gap:4,fontSize:13}} onClick={onOpenModal}><IPlus s={13}/>Más</button>
+          </div>
+          {sugg.length>0&&(
+            <div className="card" style={{position:'absolute',left:12,right:12,zIndex:10,marginTop:2,overflow:'hidden',boxShadow:'0 8px 24px rgba(0,0,0,.12)'}}>
+              {sugg.map(({food,pre},i)=>(
+                <button key={food.id} style={{display:'flex',width:'100%',textAlign:'left',padding:'8px 12px',background:'none',border:'none',borderBottom:i<sugg.length-1?'1px solid var(--line)':'none',cursor:'pointer',alignItems:'center',gap:8,fontFamily:'inherit'}} className="row" onClick={()=>select(food,pre)}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{food.name}</div>
+                    <div className="mono" style={{fontSize:10,color:'var(--muted)'}}>{ni(food.cal)} kcal {BL[food.basis]}</div>
+                  </div>
+                  {pre&&<span className="mono" style={{fontSize:12,color:'var(--accent)',flexShrink:0}}>{pre}{BU[food.basis]}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      ):(
+        <div className="fade-in" style={{display:'flex',alignItems:'center',gap:8}}>
+          <div style={{flex:1,fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}><span style={{color:'var(--muted)'}}>+&nbsp;</span>{pending.name}</div>
+          <input className="mono" style={{width:90,fontSize:13,padding:'4px 8px'}} placeholder={BU[pending.basis]==='u'?'unidades':'gramos'} value={amt} onChange={e=>setAmt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')submit();if(e.key==='Escape'){setPending(null);setAmt('');setQ('');}}} autoFocus/>
+          <span className="mono" style={{fontSize:11,color:'var(--muted)',flexShrink:0}}>{BU[pending.basis]}</span>
+          {amt&&(()=>{const a=parseFloat(amt.replace(',','.'));if(!a)return null;const m=itemMacros({amount:a},pending);return<span className="mono" style={{fontSize:11,color:'var(--accent2)',flexShrink:0}}>{ni(m.cal)}kcal</span>;})()}
+          <button className="btn btn-primary btn-xs" onClick={submit}>+</button>
+          <button className="btn btn-ghost btn-xs" onClick={()=>{setPending(null);setAmt('');setQ('');}}>×</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── ITEM ROW ── */
+function ItemRow({item,foods,combos,onEdit,onRemove}){
+  let name,amtText,mm,isCombo=false,missing=false;
+  if(item.kind==='combo'){
+    isCombo=true;const c=combos[item.comboId];
+    if(!c){missing=true;name='[combo eliminado]';amtText='';mm={cal:0,protein:0,carbs:0,fat:0,fiber:0};}
+    else{name=c.name;amtText=`×${item.multiplier||1}`;mm=comboMacros(c,foods,item.multiplier||1);}
+  }else{
+    const f=foods[item.foodId];
+    if(!f){missing=true;name='[alimento eliminado]';amtText='';mm={cal:0,protein:0,carbs:0,fat:0,fiber:0};}
+    else{name=f.name;amtText=`${n(item.amount,item.amount%1===0?0:1)}${BU[f.basis]==='u'?' ':''}${BU[f.basis]}`;mm=itemMacros(item,f);}
+  }
+  return(
+    <div className="row hs-parent" style={{borderTop:'1px solid var(--line)',padding:'8px 12px',display:'flex',alignItems:'center',gap:8,cursor:'pointer'}} onClick={onEdit}>
+      <div style={{flex:1,minWidth:0,display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+        {isCombo&&<span className="pill" style={{fontSize:10}}><ILayers s={9}/>combo</span>}
+        {missing&&<span className="pill pill-warn" style={{fontSize:10}}>faltante</span>}
+        <span style={{fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontStyle:missing?'italic':'normal',color:missing?'var(--muted)':'var(--ink)'}}>{name}</span>
+      </div>
+      <span className="mono" style={{fontSize:11,color:'var(--ink2)',flexShrink:0}}>{amtText}</span>
+      <span className="mono" style={{fontSize:12,flexShrink:0}}>{ni(mm.cal)}<span style={{color:'var(--muted)',fontSize:10}}> kcal</span></span>
+      <span className="mono" style={{fontSize:10,color:'var(--muted)',flexShrink:0,display:'none'}}>P {n(mm.protein,1)} C {n(mm.carbs,1)} G {n(mm.fat,1)}</span>
+      <div className="hs" style={{display:'flex',gap:2,flexShrink:0}}>
+        <button className="btn btn-ghost" style={{padding:'3px 5px'}} onClick={e=>{e.stopPropagation();onEdit();}}><IEdit s={11}/></button>
+        <button className="btn btn-danger" style={{padding:'3px 5px'}} onClick={e=>{e.stopPropagation();onRemove();}}><IX s={11}/></button>
+      </div>
+    </div>
+  );
+}
+
+/* ── WEEK VIEW ── */
+function WeekView({foods,combos,settings,onGoToDate}){
+  const[offset,setOffset]=useState(0);
+  const rows=useMemo(()=>{
+    const arr=[];
+    for(let i=6;i>=0;i--){const d=shiftDate(todayStr(),offset-i);const day=lsGet('day:'+d,null);arr.push({date:d,dm:dayMacros(day,foods,combos),waterMl:day?.waterMl||0,notes:day?.notes||'',gymDay:day?.gymDay||false,weightKg:day?.weightKg??null,empty:!day?.meals?.length});}
+    return arr;
+  },[offset,foods,combos]);
+  const prevWeekAvgWeight=useMemo(()=>{
+    const ws=[];
+    for(let i=13;i>=7;i--){const d=shiftDate(todayStr(),offset-i);const day=lsGet('day:'+d,null);if(day?.weightKg!=null)ws.push(day.weightKg);}
+    return ws.length?ws.reduce((a,b)=>a+b,0)/ws.length:null;
+  },[offset]);
+  const filled=rows.filter(r=>!r.empty);
+  const avg=filled.length?{cal:filled.reduce((a,r)=>a+r.dm.cal,0)/filled.length,protein:filled.reduce((a,r)=>a+r.dm.protein,0)/filled.length,carbs:filled.reduce((a,r)=>a+r.dm.carbs,0)/filled.length,fat:filled.reduce((a,r)=>a+r.dm.fat,0)/filled.length,fiber:filled.reduce((a,r)=>a+r.dm.fiber,0)/filled.length}:null;
+  const maxCal=Math.max(...rows.map(r=>r.dm.cal),1);
+  const gc=settings.goals?.cal;
+  const weightRows=rows.filter(r=>r.weightKg!=null);
+  const maxW=weightRows.length?Math.max(...weightRows.map(r=>r.weightKg)):0;
+  const minW=weightRows.length?Math.min(...weightRows.map(r=>r.weightKg)):0;
+  const wRange=maxW-minW||1;
+  const avgWeight=weightRows.length?(weightRows.reduce((a,r)=>a+r.weightKg,0)/weightRows.length):null;
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:8}}>
+        <div><div className="display" style={{fontSize:20,fontWeight:600}}>Resumen semanal</div><div style={{fontSize:12,color:'var(--muted)'}}>{filled.length} de 7 días registrados</div></div>
+        <div style={{display:'flex',gap:6}}>
+          <button className="btn btn-ghost btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>setOffset(o=>o-7)}><IChevL s={14}/>Anterior</button>
+          {offset<0&&<button className="btn btn-ghost btn-sm" onClick={()=>setOffset(0)}>Esta semana</button>}
+          {offset<0&&<button className="btn btn-ghost btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>setOffset(o=>o+7)}>Siguiente<IChevR s={14}/></button>}
+        </div>
+      </div>
+      <div className="card" style={{padding:16,marginBottom:12}}>
+        <div style={{fontSize:11,color:'var(--muted)',marginBottom:10}}>Calorías por día</div>
+        <div style={{display:'flex',alignItems:'flex-end',gap:6,height:80}}>
+          {rows.map(({date,dm,empty,gymDay})=>{
+            const pct=maxCal>0?dm.cal/maxCal*100:0;
+            const isToday=date===todayStr();
+            const over=gc&&dm.cal>gc;
+            return(
+              <div key={date} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2,cursor:'pointer'}} onClick={()=>onGoToDate(date)}>
+                <div className="mono" style={{fontSize:9,color:'var(--muted)'}}>{empty?'':ni(dm.cal)}</div>
+                <div style={{width:'100%',display:'flex',alignItems:'flex-end',height:52}}>
+                  <div style={{width:'100%',borderRadius:'3px 3px 0 0',height:`${Math.max(pct,empty?2:4)}%`,minHeight:3,background:over?'var(--warn)':isToday?'var(--accent)':'var(--line2)',transition:'height .3s'}}/>
+                </div>
+                <div className="mono" style={{fontSize:9,color:isToday?'var(--accent)':'var(--muted)',fontWeight:isToday?600:400}}>{date.slice(8)}/{date.slice(5,7)}</div>
+                {gymDay&&<div style={{fontSize:10}}>💪</div>}
+              </div>
+            );
+          })}
+        </div>
+        {gc&&<div className="mono" style={{fontSize:10,color:'var(--muted)',marginTop:6}}>Objetivo: {ni(gc)} kcal/día</div>}
+      </div>
+      {weightRows.length>0&&(
+        <div className="card" style={{padding:16,marginBottom:12}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:6}}>
+            <div style={{fontSize:11,color:'var(--muted)'}}>Peso corporal</div>
+            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+              {prevWeekAvgWeight&&avgWeight&&(()=>{const d=avgWeight-prevWeekAvgWeight;const sign=d>0?'+':'';const col=d<0?'var(--accent2)':d>0?'var(--warn)':'var(--muted)';return<div className="mono" style={{fontSize:11,color:col}}>{sign}{d.toFixed(2)} kg vs sem. ant.</div>;})()}
+              {avgWeight&&<div className="mono" style={{fontSize:11,color:'var(--ink2)'}}>{avgWeight.toFixed(1)} kg prom.</div>}
+            </div>
+          </div>
+          <div style={{position:'relative',display:'flex',alignItems:'flex-end',gap:6,height:60}}>
+            {(()=>{const wg=settings.weightGoal;if(!wg)return null;const lo=Math.min(minW,wg),hi=Math.max(maxW,wg);const range=hi-lo||1;const goalPct=((wg-lo)/range)*70+10;return<div title={`Objetivo: ${wg} kg`} style={{position:'absolute',left:0,right:0,bottom:`${goalPct*0.4+15}px`,height:0,borderTop:'1px dashed var(--accent)',pointerEvents:'none',zIndex:1}}><span className="mono" style={{position:'absolute',right:0,top:-12,fontSize:9,color:'var(--accent)',background:'var(--bg)',padding:'0 3px'}}>{wg}kg</span></div>;})()}
+            {rows.map(({date,weightKg})=>{
+              const isToday=date===todayStr();
+              const wg=settings.weightGoal;
+              const lo=wg?Math.min(minW,wg):minW;
+              const hi=wg?Math.max(maxW,wg):maxW;
+              const range=hi-lo||1;
+              const pct=weightKg!=null?((weightKg-lo)/range*70+10):0;
+              return(
+                <div key={date} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2,cursor:'pointer',position:'relative',zIndex:2}} onClick={()=>onGoToDate(date)}>
+                  {weightKg!=null&&<div className="mono" style={{fontSize:9,color:'var(--muted)'}}>{weightKg}</div>}
+                  <div style={{width:'100%',display:'flex',alignItems:'flex-end',height:40}}>
+                    <div style={{width:'100%',borderRadius:'3px 3px 0 0',height:weightKg!=null?`${pct}%`:'3px',minHeight:3,background:weightKg!=null?(isToday?'var(--accent2)':'var(--line2)'):'var(--line)',opacity:weightKg!=null?1:.25,transition:'height .3s'}}/>
+                  </div>
+                  <div className="mono" style={{fontSize:9,color:isToday?'var(--accent)':'var(--muted)',fontWeight:isToday?600:400}}>{date.slice(8)}/{date.slice(5,7)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      <div className="card" style={{overflow:'hidden'}}>
+        <div className="grid-week" style={{padding:'8px 14px',borderBottom:'1px solid var(--line)'}}>
+          <div style={{fontSize:10,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.06em'}}>Fecha</div>
+          {['kcal','P','C','G','Fibra'].map(l=><div key={l} className="mono" style={{fontSize:10,color:'var(--muted)',textAlign:'right'}}>{l}</div>)}
+          <div className="mono" style={{fontSize:10,color:'var(--muted)',textAlign:'right'}}>Agua</div>
+          <div className="mono" style={{fontSize:10,color:'var(--muted)',textAlign:'right'}}>Peso</div>
+        </div>
+        {rows.map(({date,dm,waterMl,notes,empty,gymDay,weightKg})=>(
+          <div key={date} className="row grid-week" style={{padding:'9px 14px',borderBottom:'1px solid var(--line)',opacity:empty?.45:1,cursor:'pointer'}} onClick={()=>onGoToDate(date)}>
+            <div>
+              <div style={{fontSize:12,fontWeight:500,color:date===todayStr()?'var(--accent)':'var(--ink)',display:'flex',alignItems:'center',gap:4}}>{fmtShort(date)}{gymDay&&<span style={{fontSize:11}}>💪</span>}</div>
+              {notes&&<div style={{fontSize:10,color:'var(--muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{notes}</div>}
+            </div>
+            <div className="mono" style={{textAlign:'right',fontWeight:500}}>{empty?'—':ni(dm.cal)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{empty?'—':n(dm.protein,1)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{empty?'—':n(dm.carbs,1)}</div>
+            <div className="col-fat mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{empty?'—':n(dm.fat,1)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{empty?'—':n(dm.fiber,1)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--water)'}}>{waterMl?(waterMl<1000?waterMl+'ml':(waterMl/1000).toFixed(1)+'L'):'—'}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{weightKg!=null?`${weightKg}kg`:'—'}</div>
+          </div>
+        ))}
+        {avg&&(
+          <div className="grid-week" style={{padding:'9px 14px',background:'rgba(91,107,58,.06)',borderTop:'1px solid var(--line)'}}>
+            <div style={{fontSize:11,color:'var(--accent)',fontWeight:600}}>Promedio</div>
+            <div className="mono" style={{textAlign:'right',fontWeight:600}}>{ni(avg.cal)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12}}>{n(avg.protein,1)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12}}>{n(avg.carbs,1)}</div>
+            <div className="col-fat mono" style={{textAlign:'right',fontSize:12}}>{n(avg.fat,1)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12}}>{n(avg.fiber,1)}</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--muted)'}}>—</div>
+            <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{avgWeight?`${avgWeight.toFixed(1)}kg`:'—'}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── FOODS VIEW ── */
+function FoodsView({foods,combos,usage,onAdd,onEdit,onRemove,onBulk,onBackup,onRestore}){
+  const[q,setQ]=useState('');
+  const[showImport,setShowImport]=useState(false);
+  const[importText,setImportText]=useState('');
+  const[sortBy,setSortBy]=useState(null); // null | 'name'|'cal'|'protein'|'carbs'|'fat'|'fiber'
+  const[sortDir,setSortDir]=useState('asc');
+  const[selected,setSelected]=useState(new Set());
+  const arr=useMemo(()=>Object.values(foods),[foods]);
+
+  const sorted=useMemo(()=>{
+    let base;
+    if(!q.trim())base=[...arr].sort((a,b)=>{const ua=usage[a.id]?.lastUsed||0,ub=usage[b.id]?.lastUsed||0;return ub-ua||a.name.localeCompare(b.name,'es');});
+    else base=arr.map(f=>({f,s:fuzzy(q,f.name)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).map(x=>x.f);
+    if(!sortBy)return base;
+    return[...base].sort((a,b)=>{
+      const va=sortBy==='name'?a.name:(a[sortBy]||0);
+      const vb=sortBy==='name'?b.name:(b[sortBy]||0);
+      if(sortBy==='name')return sortDir==='asc'?va.localeCompare(vb,'es'):vb.localeCompare(va,'es');
+      return sortDir==='asc'?va-vb:vb-va;
+    });
+  },[arr,usage,q,sortBy,sortDir]);
+
+  const toggleSort=key=>{if(sortBy===key)setSortDir(d=>d==='asc'?'desc':'asc');else{setSortBy(key);setSortDir('asc');}};
+  const SortHdr=({label,k,right=true})=>{
+    const active=sortBy===k;
+    return(
+      <div className="mono" style={{fontSize:10,color:active?'var(--accent2)':'var(--muted)',textAlign:right?'right':'left',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:right?'flex-end':'flex-start',gap:2}} onClick={()=>toggleSort(k)}>
+        {label}{active?(sortDir==='asc'?'▲':'▼'):''}
+      </div>
+    );
+  };
+
+  const allVisible=sorted.map(f=>f.id);
+  const allChecked=allVisible.length>0&&allVisible.every(id=>selected.has(id));
+  const[confirmDel,setConfirmDel]=useState(false);
+  const deleteSelected=()=>{
+    if(!selected.size)return;
+    if(!confirmDel){setConfirmDel(true);setTimeout(()=>setConfirmDel(false),3000);return;}
+    Array.from(selected).forEach(id=>onRemove(id));
+    setSelected(new Set());
+    setConfirmDel(false);
+  };
+  const toggleAll=()=>{if(allChecked)setSelected(new Set());else setSelected(new Set(allVisible));};
+  const toggleOne=id=>setSelected(p=>{const n=new Set(p);n.has(id)?n.delete(id):n.add(id);return n;});
+
+  const doImport=()=>{const d=decodeBackup(importText.trim());if(!d){alert('Texto inválido');return;}onRestore(d);setShowImport(false);setImportText('');};
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,marginBottom:14,flexWrap:'wrap'}}>
+        <div><div className="display" style={{fontSize:20,fontWeight:600}}>Base de alimentos</div><div style={{fontSize:12,color:'var(--muted)'}}>{arr.length} alimentos</div></div>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
+          <div style={{position:'relative'}}>
+            <ISearch s={13} style={{position:'absolute',left:9,top:'50%',transform:'translateY(-50%)',color:'var(--muted)',pointerEvents:'none'}}/>
+            <input style={{paddingLeft:28,width:150,fontSize:13,padding:'6px 10px 6px 28px'}} placeholder="Buscar…" value={q} onChange={e=>{setQ(e.target.value);setSelected(new Set());}}/>
+          </div>
+          {selected.size>0&&(
+            <button className="btn btn-xs" style={{display:'inline-flex',alignItems:'center',gap:3,color: confirmDel?'#fff':'var(--warn)',background:confirmDel?'var(--warn)':undefined,borderColor:'var(--warn)'}} onClick={deleteSelected}><ITrash s={11}/>{confirmDel?`¿Confirmar? (${selected.size})`:`Borrar ${selected.size}`}</button>
+          )}
+          <button className="btn btn-xs" style={{display:'inline-flex',alignItems:'center',gap:3}} onClick={onBackup}><IDown s={11}/>Backup</button>
+          <button className="btn btn-xs" style={{display:'inline-flex',alignItems:'center',gap:3}} onClick={()=>setShowImport(v=>!v)}><IUp s={11}/>Restaurar</button>
+          <button className="btn btn-xs" style={{display:'inline-flex',alignItems:'center',gap:3}} onClick={onBulk}><ICopy s={11}/>Masivo</button>
+          <button className="btn btn-primary btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={onAdd}><IPlus s={14}/>Nuevo</button>
+        </div>
+      </div>
+      {showImport&&(
+        <div className="card fade-in" style={{padding:12,marginBottom:12,display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+          <input style={{flex:1,fontSize:12}} placeholder="Pegá tu backup de texto…" value={importText} onChange={e=>setImportText(e.target.value)} autoFocus/>
+          <button className="btn btn-primary btn-xs" onClick={doImport} disabled={!importText.trim()}>Restaurar</button>
+          <button className="btn btn-ghost btn-xs" onClick={()=>{setShowImport(false);setImportText('');}}>×</button>
+        </div>
+      )}
+      {arr.length===0?(
+        <div className="card" style={{padding:40,textAlign:'center'}}>
+          <div className="display" style={{fontSize:17,color:'var(--ink2)'}}>Sin alimentos.</div>
+          <div style={{fontSize:13,color:'var(--muted)',marginTop:4,marginBottom:16}}>Creá tu primer alimento o usá la carga masiva.</div>
+          <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+            <button className="btn btn-primary" onClick={onAdd}>Crear alimento</button>
+            <button className="btn" onClick={onBulk}>Carga masiva</button>
+          </div>
+        </div>
+      ):(
+        <div className="card" style={{overflow:'hidden'}}>
+          <div className="grid-foods" style={{padding:'7px 14px',borderBottom:'1px solid var(--line)'}}>
+            <input type="checkbox" style={{cursor:'pointer'}} checked={allChecked} onChange={toggleAll}/>
+            <SortHdr label="Nombre" k="name" right={false}/>
+            {[['kcal','cal'],['P','protein'],['C','carbs'],['G','fat'],['Fib','fiber']].map(([l,k])=><SortHdr key={k} label={l} k={k}/>)}
+            <div className="mono" style={{fontSize:10,color:'var(--muted)',textAlign:'right'}}>Base</div>
+          </div>
+          {sorted.map(f=>(
+            <div key={f.id} className="row hs-parent grid-foods" style={{padding:'8px 14px',borderBottom:'1px solid var(--line)',cursor:'pointer',background:selected.has(f.id)?'rgba(91,107,58,.06)':undefined}} onClick={()=>onEdit(f)}>
+              <input type="checkbox" style={{cursor:'pointer'}} checked={selected.has(f.id)} onChange={e=>{e.stopPropagation();toggleOne(f.id);}} onClick={e=>e.stopPropagation()}/>
+              <div style={{minWidth:0}}>
+                <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+                  <span style={{fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f.name}</span>
+                  {f.rawCooked&&<span className="pill pill-gold" style={{fontSize:10}}>{f.rawCooked}</span>}
+                </div>
+                {f.notes&&<div style={{fontSize:10,color:'var(--muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f.notes}</div>}
+              </div>
+              <div className="mono" style={{textAlign:'right',fontSize:13}}>{ni(f.cal)}</div>
+              <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{n(f.protein,1)}</div>
+              <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{n(f.carbs,1)}</div>
+              <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{n(f.fat,1)}</div>
+              <div className="mono" style={{textAlign:'right',fontSize:12,color:'var(--ink2)'}}>{n(f.fiber,1)}</div>
+              <div style={{textAlign:'right',display:'flex',alignItems:'center',justifyContent:'flex-end',gap:4}}>
+                <span style={{fontSize:10,color:'var(--muted)'}}>{BL[f.basis].replace('por ','')}</span>
+                <button className="btn btn-danger hs" style={{padding:'2px 4px'}} onClick={e=>{e.stopPropagation();onRemove(f.id);}}><ITrash s={11}/></button>
+              </div>
+            </div>
+          ))}
+          {sorted.length===0&&<div style={{padding:'20px 14px',textAlign:'center',fontSize:13,color:'var(--muted)'}}>Sin resultados.</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── COMBOS VIEW ── */
+function CombosView({combos,foods,onAdd,onEdit,onRemove}){
+  const[q,setQ]=useState('');
+  const[delId,setDelId]=useState(null);
+  const arr=useMemo(()=>{
+    const all=Object.values(combos);
+    if(!q.trim())return all.sort((a,b)=>a.name.localeCompare(b.name,'es'));
+    return all.map(c=>({c,s:fuzzy(q,c.name)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).map(x=>x.c);
+  },[combos,q]);
+  return(
+    <div className="fade-in">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,gap:8,flexWrap:'wrap'}}>
+        <div><div className="display" style={{fontSize:20,fontWeight:600}}>Combos</div><div style={{fontSize:12,color:'var(--muted)'}}>{Object.keys(combos).length} combinaciones</div></div>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          <div style={{position:'relative'}}>
+            <ISearch s={13} style={{position:'absolute',left:9,top:'50%',transform:'translateY(-50%)',color:'var(--muted)',pointerEvents:'none'}}/>
+            <input style={{paddingLeft:28,width:150,fontSize:13,padding:'6px 10px 6px 28px'}} placeholder="Buscar…" value={q} onChange={e=>setQ(e.target.value)}/>
+          </div>
+          <button className="btn btn-primary btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={onAdd} disabled={!Object.keys(foods).length}><IPlus s={14}/>Nuevo</button>
+        </div>
+      </div>
+      {!Object.keys(foods).length&&<div className="card" style={{padding:12,marginBottom:12,fontSize:13,color:'var(--warn)',background:'rgba(168,67,31,.05)'}}>Necesitás alimentos antes de crear combos.</div>}
+      {Object.keys(combos).length===0?(
+        <div className="card" style={{padding:40,textAlign:'center'}}><div className="display" style={{fontSize:17,color:'var(--ink2)'}}>Sin combos.</div><div style={{fontSize:13,color:'var(--muted)',marginTop:4}}>Un combo es una combinación que repetís. La cargás una vez y la sumás con un click.</div></div>
+      ):arr.length===0?(
+        <div className="card" style={{padding:20,textAlign:'center',fontSize:13,color:'var(--muted)'}}>Sin resultados.</div>
+      ):(
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:10}}>
+          {arr.map(c=>{const mm=comboMacros(c,foods,1);const miss=(c.items||[]).filter(i=>!foods[i.foodId]).length;const isConf=delId===c.id;return(
+            <div key={c.id} className="card hs-parent" style={{padding:14,cursor:'pointer'}} onClick={()=>onEdit(c)}>
+              <div style={{display:'flex',justifyContent:'space-between',gap:8}}>
+                <div className="display" style={{fontSize:15,fontWeight:600}}>{c.name}</div>
+                <button className="btn btn-danger hs" style={{padding:'2px 5px',background:isConf?'var(--warn)':undefined,color:isConf?'#fff':undefined}} onClick={e=>{e.stopPropagation();if(isConf){onRemove(c.id);setDelId(null);}else{setDelId(c.id);setTimeout(()=>setDelId(p=>p===c.id?null:p),3000);}}}>{isConf?'¿?':<ITrash s={12}/>}</button>
+              </div>
+              <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{c.items.length} ítems{miss>0&&<span style={{color:'var(--warn)'}}> · {miss} faltante(s)</span>}</div>
+              <div className="mono" style={{fontSize:11,color:'var(--ink2)',marginTop:10,paddingTop:10,borderTop:'1px solid var(--line)'}}>{ni(mm.cal)} kcal · P {n(mm.protein,1)} · C {n(mm.carbs,1)} · G {n(mm.fat,1)}</div>
+            </div>
+          );})}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── ADD ITEM MODAL ── */
+function AddItemModal({foods,combos,usage,onClose,onAdd,onNewFood}){
+  const[tab,setTab]=useState('food');
+  const[q,setQ]=useState('');
+  const[sel,setSel]=useState(null);
+  const[amt,setAmt]=useState('');
+  const[mult,setMult]=useState('1');
+  const[mode,setMode]=useState('units');
+  const foodsArr=useMemo(()=>{const arr=Object.values(foods);if(!q.trim())return[...arr].sort((a,b)=>{const ua=usage[a.id]?.lastUsed||0,ub=usage[b.id]?.lastUsed||0;return ub-ua||a.name.localeCompare(b.name,'es');});return arr.map(f=>({f,s:fuzzy(q,f.name)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).map(x=>x.f);},[foods,usage,q]);
+  const combosArr=useMemo(()=>{const arr=Object.values(combos);const qt=q.trim();if(!qt)return arr.sort((a,b)=>a.name.localeCompare(b.name,'es'));return arr.map(c=>({c,s:fuzzy(qt,c.name)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).map(x=>x.c);},[combos,q]);
+  const canSwitch=sel?.basis==='per_unit'&&sel?.weightPerUnit;
+  const selectFood=f=>{setSel(f);const last=usage[f.id]?.lastAmount;setAmt(last?String(last):'');setMode('units');};
+  const previewMacros=()=>{if(!sel||tab!=='food')return null;const raw=parseFloat(amt.replace(',','.'));if(!raw||raw<=0)return null;const units=(canSwitch&&mode==='grams')?raw/sel.weightPerUnit:raw;return itemMacros({amount:units},sel);};
+  const submit=()=>{
+    if(tab==='food'){if(!sel)return;const raw=parseFloat(amt.replace(',','.'));if(!raw||raw<=0)return;const finalAmt=(canSwitch&&mode==='grams')?raw/sel.weightPerUnit:raw;onAdd({kind:'food',foodId:sel.id,amount:finalAmt});}
+    else{if(!sel)return;onAdd({kind:'combo',comboId:sel.id,multiplier:parseFloat(mult.replace(',','.'))||1});}
+  };
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>Agregar a la comida</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'14px 18px'}}>
+          <div style={{display:'flex',gap:4,marginBottom:12}}>
+            <button className={`tab${tab==='food'?' active':''}`} style={{fontSize:13}} onClick={()=>{setTab('food');setSel(null);}}>Alimento</button>
+            <button className={`tab${tab==='combo'?' active':''}`} style={{fontSize:13}} onClick={()=>{setTab('combo');setSel(null);}}>Combo</button>
+          </div>
+          {!sel&&(
+            <>
+              <div style={{position:'relative',marginBottom:10}}>
+                <ISearch s={13} style={{position:'absolute',left:9,top:'50%',transform:'translateY(-50%)',color:'var(--muted)',pointerEvents:'none'}}/>
+                <input style={{paddingLeft:28}} placeholder={tab==='food'?'Buscar alimento…':'Buscar combo…'} value={q} onChange={e=>setQ(e.target.value)} autoFocus/>
+              </div>
+              <div style={{maxHeight:260,overflowY:'auto',borderTop:'1px solid var(--line)'}}>
+                {tab==='food'&&(
+                  <>
+                    {foodsArr.length===0&&<div style={{padding:'20px',textAlign:'center',fontSize:13,color:'var(--muted)'}}>{!Object.keys(foods).length?'Base vacía.':'Sin resultados.'}</div>}
+                    {!q.trim()&&foodsArr.length>0&&<div style={{padding:'6px 12px',fontSize:10,textTransform:'uppercase',letterSpacing:'0.06em',color:'var(--muted)',background:'rgba(28,24,18,.03)'}}>Recientes</div>}
+                    {foodsArr.map(f=>(
+                      <button key={f.id} style={{display:'flex',width:'100%',textAlign:'left',padding:'9px 12px',background:'none',border:'none',borderBottom:'1px solid var(--line)',cursor:'pointer',alignItems:'center',fontFamily:'inherit'}} className="row" onClick={()=>selectFood(f)}>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f.name}</div>
+                          <div className="mono" style={{fontSize:10,color:'var(--muted)'}}>{ni(f.cal)} kcal {BL[f.basis]}{usage[f.id]?.lastAmount?` · último: ${usage[f.id].lastAmount}${BU[f.basis]}`:''}</div>
+                        </div>
+                      </button>
+                    ))}
+                    <button style={{display:'flex',width:'100%',padding:'10px 12px',background:'none',border:'none',borderTop:'1px solid var(--line)',cursor:'pointer',alignItems:'center',gap:6,fontSize:13,fontFamily:'inherit',color:'var(--accent)'}} onClick={onNewFood}><IPlus s={13}/>Crear alimento nuevo</button>
+                  </>
+                )}
+                {tab==='combo'&&(
+                  <>
+                    {combosArr.length===0&&<div style={{padding:'20px',textAlign:'center',fontSize:13,color:'var(--muted)'}}>Sin combos.</div>}
+                    {combosArr.map(c=>{const mm=comboMacros(c,foods,1);return<button key={c.id} style={{display:'flex',width:'100%',textAlign:'left',padding:'9px 12px',background:'none',border:'none',borderBottom:'1px solid var(--line)',cursor:'pointer',fontFamily:'inherit'}} className="row" onClick={()=>{setSel(c);setMult('1');}}><div style={{flex:1}}><div style={{fontSize:13}}>{c.name}</div><div className="mono" style={{fontSize:10,color:'var(--muted)'}}>{c.items.length} ítems · {ni(mm.cal)} kcal</div></div></button>;})}
+                  </>
+                )}
+              </div>
+            </>
+          )}
+          {sel&&tab==='food'&&(
+            <div className="fade-in">
+              <div className="card" style={{padding:'10px 12px',marginBottom:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div><div style={{fontWeight:500,fontSize:14}}>{sel.name}</div><div className="mono" style={{fontSize:10,color:'var(--muted)'}}>{ni(sel.cal)} kcal {BL[sel.basis]}{sel.weightPerUnit?` · ${sel.weightPerUnit}g/u`:''}</div></div>
+                <button className="btn btn-ghost btn-xs" onClick={()=>{setSel(null);setAmt('');}}>cambiar</button>
+              </div>
+              {canSwitch&&(
+                <div style={{display:'flex',gap:4,marginBottom:8}}>
+                  <button type="button" className={`btn btn-sm${mode==='units'?' btn-primary':''}`} style={{flex:1}} onClick={()=>{setMode('units');setAmt('');}}>Unidades</button>
+                  <button type="button" className={`btn btn-sm${mode==='grams'?' btn-primary':''}`} style={{flex:1}} onClick={()=>{setMode('grams');setAmt('');}}>Gramos</button>
+                </div>
+              )}
+              <label style={{fontSize:12,color:'var(--muted)'}}>
+                {canSwitch&&mode==='grams'?`Cantidad (g) — 1 unidad = ${sel.weightPerUnit}g`:sel.basis==='per_unit'?'Cantidad (unidades)':`Cantidad (${BU[sel.basis]})`}
+              </label>
+              <input type="text" className="mono" style={{marginTop:4}} value={amt} onChange={e=>setAmt(e.target.value)} placeholder={sel.basis==='per_unit'&&mode==='units'?'2':'100'} autoFocus onKeyDown={e=>{if(e.key==='Enter')submit();}}/>
+              {(()=>{const mm=previewMacros();if(!mm)return null;const raw=parseFloat(amt.replace(',','.'))||0;let eq=null;if(canSwitch&&raw>0)eq=mode==='units'?`= ${n(raw*sel.weightPerUnit,1)}g`:`= ${n(raw/sel.weightPerUnit,2)}u`;return<div className="mono" style={{fontSize:12,marginTop:8,padding:'8px 12px',borderRadius:5,background:'rgba(91,107,58,.08)',color:'var(--accent2)'}}>{eq&&<span style={{color:'var(--muted)',marginRight:8}}>{eq} ·</span>}{ni(mm.cal)} kcal · P {n(mm.protein,1)} · C {n(mm.carbs,1)} · G {n(mm.fat,1)} · F {n(mm.fiber,1)}</div>;})()}
+            </div>
+          )}
+          {sel&&tab==='combo'&&(
+            <div className="fade-in">
+              <div className="card" style={{padding:'10px 12px',marginBottom:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div><div style={{fontWeight:500,fontSize:14}}>{sel.name}</div><div className="mono" style={{fontSize:10,color:'var(--muted)'}}>{sel.items.length} ítems</div></div>
+                <button className="btn btn-ghost btn-xs" onClick={()=>setSel(null)}>cambiar</button>
+              </div>
+              <label style={{fontSize:12,color:'var(--muted)'}}>Multiplicador (1 = completo, 0.5 = mitad)</label>
+              <input type="text" className="mono" style={{marginTop:4}} value={mult} onChange={e=>setMult(e.target.value)} autoFocus onKeyDown={e=>{if(e.key==='Enter')submit();}}/>
+              {(()=>{const m=parseFloat(mult.replace(',','.'))||0;const mm=comboMacros(sel,foods,m);return<div className="mono" style={{fontSize:12,marginTop:8,padding:'8px 12px',borderRadius:5,background:'rgba(91,107,58,.08)',color:'var(--accent2)'}}>{ni(mm.cal)} kcal · P {n(mm.protein,1)} · C {n(mm.carbs,1)} · G {n(mm.fat,1)}</div>;})()}
+            </div>
+          )}
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" onClick={submit} disabled={!sel||(tab==='food'&&!parseFloat((amt||'').replace(',','.')))}>Agregar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── EDIT ITEM MODAL ── */
+function EditItemModal({foods,combos,item,onClose,onSave}){
+  const isCombo=item.kind==='combo';
+  const food=!isCombo?foods[item.foodId]:null;
+  const combo=isCombo?combos[item.comboId]:null;
+  const canSwitch=!isCombo&&food?.basis==='per_unit'&&food?.weightPerUnit;
+  const[mode,setMode]=useState('units');
+  const[amt,setAmt]=useState(isCombo?String(item.multiplier||1):String(item.amount));
+  const submit=()=>{const v=parseFloat(amt.replace(',','.'));if(!v||v<=0)return;if(isCombo){onSave({multiplier:v});return;}const fa=(canSwitch&&mode==='grams')?v/food.weightPerUnit:v;onSave({amount:fa});};
+  const previewU=()=>{const v=parseFloat(amt.replace(',','.'))||0;return(canSwitch&&mode==='grams')?v/food.weightPerUnit:v;};
+  const mm=isCombo?comboMacros(combo||{items:[]},foods,parseFloat(amt.replace(',','.'))||0):itemMacros({amount:previewU()},food||{});
+  if(!food&&!combo)return<div className="modal-bg" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}><div style={{padding:20}}><div className="display" style={{fontSize:17,fontWeight:600}}>Ítem faltante</div><button className="btn" style={{marginTop:16}} onClick={onClose}>Cerrar</button></div></div></div>;
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>Editar cantidad</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'14px 18px'}}>
+          <div style={{fontWeight:500,marginBottom:2}}>{isCombo?combo.name:food.name}</div>
+          <div className="mono" style={{fontSize:11,color:'var(--muted)',marginBottom:10}}>{isCombo?`${combo.items.length} ítems`:`${ni(food.cal)} kcal ${BL[food.basis]}${food.weightPerUnit?` · ${food.weightPerUnit}g/u`:''}`}</div>
+          {canSwitch&&<div style={{display:'flex',gap:4,marginBottom:8}}><button type="button" className={`btn btn-sm${mode==='units'?' btn-primary':''}`} style={{flex:1}} onClick={()=>{setMode('units');setAmt('');}}>Unidades</button><button type="button" className={`btn btn-sm${mode==='grams'?' btn-primary':''}`} style={{flex:1}} onClick={()=>{setMode('grams');setAmt('');}}>Gramos</button></div>}
+          <label style={{fontSize:12,color:'var(--muted)'}}>{isCombo?'Multiplicador':canSwitch&&mode==='grams'?`Cantidad (g) — 1u = ${food.weightPerUnit}g`:food?.basis==='per_unit'?'Cantidad (unidades)':`Cantidad (${BU[food.basis]})`}</label>
+          <input type="text" className="mono" style={{marginTop:4}} value={amt} onChange={e=>setAmt(e.target.value)} autoFocus onKeyDown={e=>{if(e.key==='Enter')submit();}}/>
+          <div className="mono" style={{fontSize:12,marginTop:8,padding:'8px 12px',borderRadius:5,background:'rgba(91,107,58,.08)',color:'var(--accent2)'}}>
+            {(()=>{const raw=parseFloat(amt.replace(',','.'))||0;let eq=null;if(canSwitch&&raw>0)eq=mode==='units'?`= ${n(raw*food.weightPerUnit,1)}g`:`= ${n(raw/food.weightPerUnit,2)}u`;return<>{eq&&<span style={{color:'var(--muted)',marginRight:8}}>{eq} ·</span>}{ni(mm.cal)} kcal · P {n(mm.protein,1)} · C {n(mm.carbs,1)} · G {n(mm.fat,1)}</>;})()} 
+          </div>
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" onClick={submit}>Guardar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── FOOD FORM MODAL ── */
+function FoodFormModal({food,onClose,onSave}){
+  const ed=!!food;
+  const[name,setName]=useState(food?.name||'');
+  const[basis,setBasis]=useState(food?.basis||'per_100g');
+  const[cal,setCal]=useState(food?String(food.cal):'');
+  const[protein,setProtein]=useState(food?String(food.protein):'');
+  const[carbs,setCarbs]=useState(food?String(food.carbs):'');
+  const[fat,setFat]=useState(food?String(food.fat):'');
+  const[fiber,setFiber]=useState(food?String(food.fiber):'0');
+  const[notes,setNotes]=useState(food?.notes||'');
+  const[wpu,setWpu]=useState(food?.weightPerUnit?String(food.weightPerUnit):'');
+  const[rc,setRc]=useState(food?.rawCooked||null);
+  const[perPortion,setPerPortion]=useState(false);
+  const[portionG,setPortionG]=useState('');
+  const[pasteText,setPasteText]=useState('');
+  const[pasteMsg,setPasteMsg]=useState(null);
+
+  const tryPaste=()=>{
+    const r=parseLabelText(pasteText);
+    if(!r){setPasteMsg({ok:false,msg:'No se detectó nada.'});return;}
+    let sf=1;if(r.scaledFrom)sf=100/r.scaledFrom;
+    const set=(v,s)=>{if(v!=null&&!isNaN(v))s(String(+(v*sf).toFixed(2)));};
+    set(r.cal,setCal);set(r.protein,setProtein);set(r.carbs,setCarbs);set(r.fat,setFat);set(r.fiber,setFiber);
+    setBasis('per_100g');
+    setPasteMsg({ok:true,msg:r.scaledFrom?`Escalado desde porción de ${r.scaledFrom}g.`:'Detectado — revisá los valores.'});
+  };
+  const submit=()=>{
+    if(!name.trim())return;
+    let pC=parseFloat((cal||'').replace(',','.')),pPr=parseFloat((protein||'').replace(',','.')),pCa=parseFloat((carbs||'').replace(',','.')),pF=parseFloat((fat||'').replace(',','.')),pFi=parseFloat((fiber||'0').replace(',','.'));
+    if(perPortion&&basis!=='per_unit'){const pg=parseFloat((portionG||'').replace(',','.'));if(pg>0){const f=100/pg;pC*=f;pPr*=f;pCa*=f;pF*=f;pFi*=f;}}
+    onSave({id:food?.id||uid(),name:name.trim(),basis,cal:isNaN(pC)?0:pC,protein:isNaN(pPr)?0:pPr,carbs:isNaN(pCa)?0:pCa,fat:isNaN(pF)?0:pF,fiber:isNaN(pFi)?0:pFi,notes:notes.trim(),weightPerUnit:basis==='per_unit'?(parseFloat(wpu.replace(',','.'))||null):null,rawCooked:rc,createdAt:food?.createdAt||Date.now(),updatedAt:Date.now()});
+  };
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>{ed?'Editar alimento':'Nuevo alimento'}</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'14px 18px',display:'flex',flexDirection:'column',gap:12}}>
+          <div><label style={{fontSize:12,color:'var(--muted)'}}>Nombre</label><input style={{marginTop:4}} value={name} onChange={e=>setName(e.target.value)} placeholder="ej. Yogur griego natural" autoFocus/></div>
+          <div>
+            <label style={{fontSize:12,color:'var(--muted)'}}>Base</label>
+            <div style={{display:'flex',gap:4,marginTop:4}}>
+              {['per_100g','per_100ml','per_unit'].map(b=><button key={b} type="button" className={`btn btn-sm${basis===b?' btn-primary':''}`} style={{flex:1,fontSize:12}} onClick={()=>setBasis(b)}>{BL[b]}</button>)}
+            </div>
+            {basis==='per_unit'&&(
+              <div style={{marginTop:8}}>
+                <div style={{fontSize:11,color:'var(--muted)',marginBottom:4}}>Ingresá los macros de <strong>1 unidad</strong>.</div>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <input type="text" className="mono" style={{width:90}} placeholder="ej. 60" value={wpu} onChange={e=>setWpu(e.target.value)}/>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>g por unidad (opcional — permite cargar también en gramos)</span>
+                </div>
+              </div>
+            )}
+          </div>
+          <div>
+            <label style={{fontSize:12,color:'var(--muted)'}}>Crudo / cocido (informativo)</label>
+            <div style={{display:'flex',gap:4,marginTop:4}}>
+              {[null,'crudo','cocido'].map(v=><button key={String(v)} type="button" className={`btn btn-sm${rc===v?' btn-primary':''}`} onClick={()=>setRc(v)}>{v||'N/A'}</button>)}
+            </div>
+          </div>
+          {/* Paste label */}
+          <div style={{background:'rgba(91,107,58,.07)',border:'1px solid rgba(91,107,58,.22)',borderRadius:6,padding:12}}>
+            <div style={{fontSize:12,fontWeight:500,color:'var(--accent2)',marginBottom:6,display:'flex',alignItems:'center',gap:5}}><ISparkle s={12}/>Pegar etiqueta nutricional</div>
+            <div style={{fontSize:11,color:'var(--muted)',marginBottom:6}}>Copiá el texto del paquete y pegalo acá.</div>
+            <textarea rows={4} className="mono" style={{fontSize:11,resize:'vertical'}} placeholder={'Valor energético 380 kcal\nProteínas 8g\nCarbohidratos 65g\nGrasas totales 10g\nFibra 3g'} value={pasteText} onChange={e=>{setPasteText(e.target.value);setPasteMsg(null);}}/>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginTop:6}}>
+              <button type="button" className="btn btn-primary btn-xs" onClick={tryPaste} disabled={!pasteText.trim()}>Detectar valores</button>
+              {pasteMsg&&<span style={{fontSize:11,color:pasteMsg.ok?'var(--accent2)':'var(--warn)'}}>{pasteMsg.msg}</span>}
+            </div>
+          </div>
+          {basis!=='per_unit'&&(
+            <label style={{display:'flex',alignItems:'center',gap:8,fontSize:12,cursor:'pointer',color:'var(--ink2)'}}>
+              <input type="checkbox" checked={perPortion} onChange={e=>setPerPortion(e.target.checked)}/>Cargar valores por porción
+            </label>
+          )}
+          {perPortion&&basis!=='per_unit'&&(
+            <div><label style={{fontSize:12,color:'var(--muted)'}}>Tamaño de la porción (g)</label><input type="text" className="mono" style={{marginTop:4}} value={portionG} onChange={e=>setPortionG(e.target.value)} placeholder="30"/></div>
+          )}
+          <div style={{height:1,background:'var(--line2)'}}/>
+          <div style={{fontSize:11,color:'var(--muted)'}}>Valores {perPortion?'por porción':BL[basis]}</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            <div><label style={{fontSize:12,color:'var(--muted)'}}>Calorías (kcal)</label><input type="text" className="mono" style={{marginTop:3}} value={cal} onChange={e=>setCal(e.target.value)} placeholder="0"/></div>
+            <div><label style={{fontSize:12,color:'var(--muted)'}}>Proteínas (g)</label><input type="text" className="mono" style={{marginTop:3}} value={protein} onChange={e=>setProtein(e.target.value)} placeholder="0"/></div>
+            <div><label style={{fontSize:12,color:'var(--muted)'}}>Carbohidratos (g)</label><input type="text" className="mono" style={{marginTop:3}} value={carbs} onChange={e=>setCarbs(e.target.value)} placeholder="0"/></div>
+            <div><label style={{fontSize:12,color:'var(--muted)'}}>Grasas (g)</label><input type="text" className="mono" style={{marginTop:3}} value={fat} onChange={e=>setFat(e.target.value)} placeholder="0"/></div>
+            <div style={{gridColumn:'1/-1'}}><label style={{fontSize:12,color:'var(--muted)'}}>Fibra (g)</label><input type="text" className="mono" style={{marginTop:3}} value={fiber} onChange={e=>setFiber(e.target.value)} placeholder="0"/></div>
+          </div>
+          <div><label style={{fontSize:12,color:'var(--muted)'}}>Notas (opcional)</label><input type="text" style={{marginTop:3}} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="marca, tipo, etc."/></div>
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" onClick={submit} disabled={!name.trim()}>{ed?'Guardar':'Crear'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── COMBO FORM MODAL ── */
+function ComboFormModal({combo,foods,onClose,onSave}){
+  const ed=!!combo;
+  const[name,setName]=useState(combo?.name||'');
+  const[items,setItems]=useState(combo?.items||[]);
+  const[adding,setAdding]=useState(false);
+  const[q,setQ]=useState('');
+  const[pf,setPf]=useState(null);
+  const[pa,setPa]=useState('');
+  const foodsArr=useMemo(()=>Object.values(foods).sort((a,b)=>a.name.localeCompare(b.name,'es')),[foods]);
+  const filtered=useMemo(()=>q.trim()?foodsArr.filter(f=>fuzzy(q,f.name)>0):foodsArr,[foodsArr,q]);
+  const mm=useMemo(()=>comboMacros({items},foods,1),[items,foods]);
+  const addP=()=>{if(!pf)return;const a=parseFloat(pa.replace(',','.'));if(!a||a<=0)return;setItems(p=>[...p,{id:uid(),foodId:pf.id,amount:a}]);setPf(null);setPa('');setAdding(false);setQ('');};
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>{ed?'Editar combo':'Nuevo combo'}</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'14px 18px',display:'flex',flexDirection:'column',gap:10}}>
+          <div><label style={{fontSize:12,color:'var(--muted)'}}>Nombre</label><input style={{marginTop:4}} value={name} onChange={e=>setName(e.target.value)} placeholder="ej. Mi ensalada base" autoFocus/></div>
+          <div style={{height:1,background:'var(--line2)'}}/>
+          {items.map(it=>{const f=foods[it.foodId];const m=f?itemMacros(it,f):null;return(
+            <div key={it.id} style={{display:'flex',alignItems:'center',gap:8,paddingBottom:8,borderBottom:'1px solid var(--line)'}}>
+              <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f?.name||'[faltante]'}</div>{m&&<div className="mono" style={{fontSize:10,color:'var(--muted)'}}>{ni(m.cal)} kcal</div>}</div>
+              <input type="text" className="mono" style={{width:72,fontSize:13,padding:'4px 6px'}} value={it.amount} onChange={e=>{const v=parseFloat(e.target.value.replace(',','.'));setItems(p=>p.map(x=>x.id===it.id?{...x,amount:isNaN(v)?0:v}:x));}}/>
+              <span className="mono" style={{fontSize:11,color:'var(--muted)'}}>{f?BU[f.basis]:''}</span>
+              <button className="btn btn-danger" style={{padding:'3px 5px'}} onClick={()=>setItems(p=>p.filter(x=>x.id!==it.id))}><IX s={12}/></button>
+            </div>
+          );})}
+          {adding?(
+            <div className="card" style={{padding:10}}>
+              {!pf?(
+                <>
+                  <div style={{position:'relative',marginBottom:8}}>
+                    <ISearch s={13} style={{position:'absolute',left:9,top:'50%',transform:'translateY(-50%)',color:'var(--muted)',pointerEvents:'none'}}/>
+                    <input style={{paddingLeft:28}} placeholder="Buscar…" value={q} onChange={e=>setQ(e.target.value)} autoFocus/>
+                  </div>
+                  <div style={{maxHeight:140,overflowY:'auto'}}>
+                    {filtered.map(f=><button key={f.id} style={{display:'block',width:'100%',textAlign:'left',padding:'6px 8px',background:'none',border:'none',borderRadius:4,cursor:'pointer',fontFamily:'inherit',fontSize:13}} className="row" onClick={()=>{setPf(f);setPa('');}}>
+                      {f.name}
+                    </button>)}
+                  </div>
+                  <button className="btn btn-ghost btn-xs" style={{marginTop:8}} onClick={()=>{setAdding(false);setQ('');}}>cancelar</button>
+                </>
+              ):(
+                <>
+                  <div style={{fontSize:13,fontWeight:500,marginBottom:6}}>{pf.name}</div>
+                  <div style={{display:'flex',gap:6}}>
+                    <input type="text" className="mono" style={{flex:1,fontSize:13}} placeholder={`Cantidad (${BU[pf.basis]})`} value={pa} onChange={e=>setPa(e.target.value)} autoFocus onKeyDown={e=>{if(e.key==='Enter')addP();}}/>
+                    <button className="btn btn-primary btn-sm" onClick={addP}>+</button>
+                    <button className="btn btn-ghost btn-sm" onClick={()=>setPf(null)}>←</button>
+                  </div>
+                </>
+              )}
+            </div>
+          ):<button className="btn btn-sm" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>setAdding(true)} disabled={!foodsArr.length}><IPlus s={13}/>Agregar ítem</button>}
+          <div style={{height:1,background:'var(--line2)'}}/>
+          <div className="mono" style={{fontSize:12,padding:'8px 12px',borderRadius:5,background:'rgba(91,107,58,.08)',color:'var(--accent2)'}}>Total: {ni(mm.cal)} kcal · P {n(mm.protein,1)} · C {n(mm.carbs,1)} · G {n(mm.fat,1)} · F {n(mm.fiber,1)}</div>
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" onClick={()=>{if(!name.trim()||!items.length)return;onSave({id:combo?.id||uid(),name:name.trim(),items,createdAt:combo?.createdAt||Date.now(),updatedAt:Date.now()});}} disabled={!name.trim()||!items.length}>{ed?'Guardar':'Crear'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── BULK MODAL ── */
+function BulkModal({onClose,onImport}){
+  const[mode,setMode]=useState('per_100g'); // 'per_100g' | 'per_unit'
+  const[text,setText]=useState('');
+  const[preview,setPreview]=useState(null);
+
+  const EXAMPLES={
+    per_100g:`# Nombre | kcal | Proteínas | Carbohidratos | Grasas | Fibra
+Arroz blanco cocido | 130 | 2.7 | 28 | 0.3 | 0.4
+Pechuga de pollo | 165 | 31 | 0 | 3.6 | 0
+Yogur natural | 60 | 3.5 | 4.7 | 3.3 | 0`,
+    per_unit:`# Nombre | kcal | Proteínas | Carbohidratos | Grasas | Fibra | [g/u]
+Huevo entero | 155 | 13 | 1.1 | 11 | 0 | 60
+Medialuna chica | 180 | 4 | 22 | 9 | 0.5
+Banana mediana | 105 | 1.3 | 27 | 0.4 | 3.1 | 118`,
+  };
+
+  const FORMAT={
+    per_100g:'Nombre | kcal | Proteínas | Carbohidratos | Grasas | Fibra',
+    per_unit:'Nombre | kcal | Proteínas | Carbohidratos | Grasas | Fibra | [g/u]',
+  };
+  const HINT={
+    per_100g:'Todos los valores son por cada 100 g del alimento.',
+    per_unit:'Valores por unidad. g/u (último campo) es opcional: peso en gramos por unidad.',
+  };
+
+  const switchMode=m=>{setMode(m);setPreview(null);};
+
+  const parse=()=>{
+    const lines=text.split(/\r?\n/),results=[];
+    for(let i=0;i<lines.length;i++){
+      const raw=lines[i],t=raw.trim();
+      if(!t||t.startsWith('#'))continue;
+      const sep=t.includes('|')?'|':'\t';
+      const parts=t.split(sep).map(s=>s.trim());
+      if(parts.length<2){results.push({ok:false,line:i+1,raw,reason:'Muy pocos campos'});continue;}
+      const[rName,rCal,rProt,rCarb,rFat,rFib,rWpu]=parts;
+      if(!rName){results.push({ok:false,line:i+1,raw,reason:'Nombre vacío'});continue;}
+      const pn=v=>{if(!v||!v.trim())return 0;const nn=parseFloat(v.replace(',','.'));return isNaN(nn)?null:nn;};
+      const c=pn(rCal);
+      if(c===null){results.push({ok:false,line:i+1,raw,reason:`Calorías inválidas: "${rCal}"`});continue;}
+      const wpu=mode==='per_unit'?(parseFloat((rWpu||'').replace(',','.'))||null):null;
+      results.push({ok:true,food:{id:uid(),name:rName,basis:mode,cal:c,protein:pn(rProt)??0,carbs:pn(rCarb)??0,fat:pn(rFat)??0,fiber:pn(rFib)??0,notes:'',weightPerUnit:wpu,createdAt:Date.now(),updatedAt:Date.now()}});
+    }
+    setPreview(results);
+  };
+  const ok=preview?.filter(r=>r.ok)||[];
+  const err=preview?.filter(r=>!r.ok)||[];
+
+  const tabBtn=(m,label)=>(
+    <button key={m} onClick={()=>switchMode(m)}
+      style={{flex:1,padding:'8px 10px',fontSize:13,fontWeight:500,border:'none',borderBottom:`2px solid ${mode===m?'var(--accent)':'transparent'}`,background:'none',color:mode===m?'var(--accent)':'var(--muted)',cursor:'pointer',fontFamily:'inherit'}}>
+      {label}
+    </button>
+  );
+
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" style={{maxWidth:640}} onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>Carga masiva</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{display:'flex',borderBottom:'1px solid var(--line)'}}>
+          {tabBtn('per_100g','Por 100 g')}
+          {tabBtn('per_unit','Por unidad')}
+        </div>
+        <div style={{padding:'14px 18px',display:'flex',flexDirection:'column',gap:10}}>
+          <div className="mono" style={{fontSize:11,padding:'8px 12px',background:'rgba(28,24,18,.04)',borderRadius:5,borderLeft:'3px solid var(--line2)'}}>
+            <div>{FORMAT[mode]}</div>
+            <div style={{color:'var(--muted)',marginTop:3}}>{HINT[mode]}</div>
+          </div>
+          <details style={{fontSize:12,color:'var(--muted)'}}>
+            <summary style={{cursor:'pointer'}}>ver ejemplo</summary>
+            <pre style={{fontFamily:'JetBrains Mono',fontSize:11,marginTop:6,padding:8,background:'rgba(28,24,18,.04)',borderRadius:4,whiteSpace:'pre-wrap'}}>{EXAMPLES[mode]}</pre>
+            <button className="btn btn-ghost btn-xs" style={{marginTop:4}} onClick={()=>{setText(EXAMPLES[mode]);setPreview(null);}}>Cargar ejemplo</button>
+          </details>
+          <textarea className="mono" rows={8} style={{fontSize:12,resize:'vertical'}}
+            placeholder={mode==='per_100g'?'Arroz blanco cocido | 130 | 2.7 | 28 | 0.3 | 0.4':'Huevo entero | 155 | 13 | 1.1 | 11 | 0 | 60'}
+            value={text} onChange={e=>{setText(e.target.value);setPreview(null);}} spellCheck={false} autoFocus/>
+          <button className="btn btn-primary" style={{display:'inline-flex',alignItems:'center',gap:6,justifyContent:'center'}} onClick={parse} disabled={!text.trim()}><ISearch s={14}/>Verificar</button>
+          {preview&&(
+            <div className="fade-in">
+              <div style={{height:1,background:'var(--line2)',marginBottom:8}}/>
+              {err.length>0&&<div style={{marginBottom:8}}><div style={{fontSize:12,fontWeight:500,color:'var(--warn)',marginBottom:4}}>{err.length} línea(s) con error:</div>{err.map((r,i)=><div key={i} style={{fontSize:11,padding:'4px 8px',background:'rgba(168,67,31,.05)',borderRadius:4,marginBottom:2}}><span className="mono" style={{color:'var(--muted)'}}>L{r.line}</span> <span style={{color:'var(--warn)'}}>{r.reason}</span></div>)}</div>}
+              {ok.length>0&&<div><div style={{fontSize:12,fontWeight:500,color:'var(--accent2)',marginBottom:6}}>{ok.length} alimento(s) listos:</div><div className="card" style={{overflow:'hidden',maxHeight:180,overflowY:'auto'}}>{ok.map((r,i)=><div key={i} style={{display:'flex',alignItems:'center',padding:'6px 12px',borderBottom:'1px solid var(--line)',gap:8}}><span style={{flex:1,fontSize:12,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.food.name}</span><span className="mono" style={{fontSize:11,color:'var(--muted)'}}>{ni(r.food.cal)} kcal · {BL[r.food.basis].replace('por ','')}{r.food.weightPerUnit?` · ${r.food.weightPerUnit}g/u`:''}</span></div>)}</div></div>}
+            </div>
+          )}
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>onImport(ok.map(r=>r.food))} disabled={!preview||!ok.length}><IPlus s={14}/>Importar {ok.length>0?`(${ok.length})`:''}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── EXPORT MODAL ── */
+function ExportModal({day,foods,combos,onClose,showToast}){
+  const[header,setHeader]=useState(true);
+  const[subtotals,setSubtotals]=useState(false);
+  const[total,setTotal]=useState(true);
+  const[expand,setExpand]=useState(false);
+  const[mode,setMode]=useState('day');
+  const[df,setDf]=useState(day?.date||todayStr());
+  const[dt,setDt]=useState(day?.date||todayStr());
+  const[copied,setCopied]=useState(false);
+  const buildDay=(d,date)=>{
+    const lines=[],ds=fmtShort(date),acc={cal:0,protein:0,carbs:0,fat:0,fiber:0};
+    for(const meal of d?.meals||[]){
+      const ma={cal:0,protein:0,carbs:0,fat:0,fiber:0};
+      for(const it of meal.items||[]){
+        if(it.kind==='combo'){const c=combos[it.comboId];if(!c)continue;if(expand){for(const s of c.items){const f=foods[s.foodId];if(!f)continue;const m=itemMacros({amount:s.amount*(it.multiplier||1)},f);lines.push([ds,meal.name,`${f.name} (${c.name})`,n(s.amount*(it.multiplier||1),2),BU[f.basis],n(m.cal,1),n(m.protein,1),n(m.carbs,1),n(m.fat,1),n(m.fiber,1)].join('\t'));ma.cal+=m.cal;ma.protein+=m.protein;ma.carbs+=m.carbs;ma.fat+=m.fat;ma.fiber+=m.fiber;}}else{const m=comboMacros(c,foods,it.multiplier||1);lines.push([ds,meal.name,`[Combo] ${c.name}`,n(it.multiplier||1,2),'x',n(m.cal,1),n(m.protein,1),n(m.carbs,1),n(m.fat,1),n(m.fiber,1)].join('\t'));ma.cal+=m.cal;ma.protein+=m.protein;ma.carbs+=m.carbs;ma.fat+=m.fat;ma.fiber+=m.fiber;}}
+        else{const f=foods[it.foodId];if(!f)continue;const m=itemMacros(it,f);lines.push([ds,meal.name,f.name,n(it.amount,2),BU[f.basis],n(m.cal,1),n(m.protein,1),n(m.carbs,1),n(m.fat,1),n(m.fiber,1)].join('\t'));ma.cal+=m.cal;ma.protein+=m.protein;ma.carbs+=m.carbs;ma.fat+=m.fat;ma.fiber+=m.fiber;}
+      }
+      if(subtotals&&meal.items.length)lines.push([ds,meal.name,'[Subtotal]','','',n(ma.cal,1),n(ma.protein,1),n(ma.carbs,1),n(ma.fat,1),n(ma.fiber,1)].join('\t'));
+      acc.cal+=ma.cal;acc.protein+=ma.protein;acc.carbs+=ma.carbs;acc.fat+=ma.fat;acc.fiber+=ma.fiber;
+    }
+    if(total&&(d?.meals||[]).length)lines.push([ds,'[Total día]','','','',n(acc.cal,1),n(acc.protein,1),n(acc.carbs,1),n(acc.fat,1),n(acc.fiber,1)].join('\t'));
+    return lines;
+  };
+  const text=useMemo(()=>{
+    const lines=[];
+    if(header)lines.push(['Fecha','Comida','Alimento','Cantidad','Unidad','Calorías','Proteínas','Carbohidratos','Grasas','Fibra'].join('\t'));
+    if(mode==='day'){buildDay(day,day?.date||todayStr()).forEach(l=>lines.push(l));}
+    else{let cur=df;while(cur<=dt){const d=lsGet('day:'+cur,null);if(d)buildDay(d,cur).forEach(l=>lines.push(l));cur=shiftDate(cur,1);if(lines.length>2000)break;}}
+    return lines.join('\n');
+  },[day,header,subtotals,total,expand,mode,df,dt]);
+  const copy=async()=>{try{await navigator.clipboard.writeText(text);setCopied(true);showToast('Copiado');setTimeout(()=>setCopied(false),1500);}catch{showToast('No se pudo copiar');}};
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" style={{maxWidth:680}} onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>Exportar para Excel</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'14px 18px',display:'flex',flexDirection:'column',gap:10}}>
+          <div style={{display:'flex',gap:4}}>
+            <button className={`tab${mode==='day'?' active':''}`} style={{fontSize:13}} onClick={()=>setMode('day')}>Día actual</button>
+            <button className={`tab${mode==='range'?' active':''}`} style={{fontSize:13}} onClick={()=>setMode('range')}>Rango</button>
+          </div>
+          {mode==='range'&&(
+            <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end'}}>
+              <div><label style={{fontSize:12,color:'var(--muted)'}}>Desde</label><input type="date" className="mono" style={{marginTop:4,width:'auto'}} value={df} onChange={e=>setDf(e.target.value)}/></div>
+              <div><label style={{fontSize:12,color:'var(--muted)'}}>Hasta</label><input type="date" className="mono" style={{marginTop:4,width:'auto'}} value={dt} onChange={e=>setDt(e.target.value)}/></div>
+            </div>
+          )}
+          <div style={{display:'flex',flexWrap:'wrap',gap:12,fontSize:12}}>
+            {[['header','Encabezado',header,setHeader],['sub','Subtotales',subtotals,setSubtotals],['tot','Total día',total,setTotal],['exp','Expandir combos',expand,setExpand]].map(([k,l,v,s])=>(
+              <label key={k} style={{display:'inline-flex',alignItems:'center',gap:5,cursor:'pointer'}}><input type="checkbox" checked={v} onChange={e=>s(e.target.checked)}/>{l}</label>
+            ))}
+          </div>
+          <textarea readOnly className="mono" rows={9} style={{fontSize:11,resize:'vertical'}} value={text} onClick={e=>e.target.select()}/>
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cerrar</button>
+          <button className="btn btn-primary" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={copy}>{copied?<><ICheck s={13}/>Copiado</>:<><ICopy s={13}/>Copiar</>}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── SETTINGS MODAL ── */
+/* ── DRIVE MODAL ── */
+function DriveModal({onClose,signedIn,syncState,syncErr,lastSyncTs,isOnline,onSignIn,onSignOut,onSyncNow}){
+  const fmtTs=(ts)=>{
+    if(!ts)return'—';
+    const d=new Date(ts);
+    const today=new Date();
+    const sameDay=d.toDateString()===today.toDateString();
+    const hh=String(d.getHours()).padStart(2,'0');
+    const mm=String(d.getMinutes()).padStart(2,'0');
+    if(sameDay)return `hoy ${hh}:${mm}`;
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${hh}:${mm}`;
+  };
+  const stateLabel=!isOnline?'Sin conexión':{
+    init:'Inicializando…',
+    idle:'Desconectado',
+    syncing:'Sincronizando…',
+    synced:'Sincronizado',
+    error:'Error',
+    offline:'Sin conexión',
+  }[syncState]||syncState;
+  const stateColor=!isOnline?'var(--muted)':{
+    syncing:'var(--accent2)',
+    synced:'var(--accent)',
+    error:'var(--warn)',
+    idle:'var(--muted)',
+    init:'var(--muted)',
+  }[syncState]||'var(--ink2)';
+
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="card" style={{maxWidth:440,width:'100%',maxHeight:'90vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <ICloud s={18}/>
+            <div className="display" style={{fontSize:17,fontWeight:600}}>Google Drive</div>
+          </div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'16px 18px',display:'flex',flexDirection:'column',gap:14}}>
+          {!signedIn?(
+            <>
+              <div style={{fontSize:13,color:'var(--ink2)',lineHeight:1.5}}>
+                Sincronizá tus datos entre dispositivos. Toda la información se guarda en una zona oculta de tu Drive (no contamina tus archivos).
+              </div>
+              <ul style={{fontSize:12,color:'var(--muted)',paddingLeft:18,lineHeight:1.6}}>
+                <li>Solo accede a una carpeta privada de la app</li>
+                <li>No puede leer tus otros archivos</li>
+                <li>Funciona offline: los cambios se sincronizan al volver online</li>
+              </ul>
+              {syncErr&&<div style={{padding:'8px 12px',background:'rgba(168,67,31,.08)',color:'var(--warn)',borderRadius:5,fontSize:12,borderLeft:'3px solid var(--warn)'}}>{syncErr}</div>}
+              <button className="btn btn-primary" style={{display:'inline-flex',alignItems:'center',gap:6,justifyContent:'center'}} onClick={onSignIn} disabled={syncState==='syncing'}>
+                <ICloud s={14}/>{syncState==='syncing'?'Conectando…':'Conectar con Google'}
+              </button>
+            </>
+          ):(
+            <>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 12px',background:'rgba(91,107,58,.05)',borderRadius:5,borderLeft:`3px solid ${stateColor}`}}>
+                <div>
+                  <div style={{fontSize:11,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.06em'}}>Estado</div>
+                  <div style={{fontSize:14,fontWeight:500,color:stateColor,marginTop:2}}>{stateLabel}</div>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontSize:11,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.06em'}}>Última sync</div>
+                  <div className="mono" style={{fontSize:13,marginTop:2}}>{fmtTs(lastSyncTs)}</div>
+                </div>
+              </div>
+              {syncErr&&<div style={{padding:'8px 12px',background:'rgba(168,67,31,.08)',color:'var(--warn)',borderRadius:5,fontSize:12,borderLeft:'3px solid var(--warn)',wordBreak:'break-word'}}>{syncErr}</div>}
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                <button className="btn btn-primary" style={{flex:1,display:'inline-flex',alignItems:'center',gap:5,justifyContent:'center'}} onClick={onSyncNow} disabled={syncState==='syncing'||!isOnline}>
+                  <IRefresh s={13}/>Sincronizar ahora
+                </button>
+                {syncState==='error'&&<button className="btn btn-primary" style={{display:'inline-flex',alignItems:'center',gap:5}} onClick={onSignIn}><ICloud s={13}/>Reconectar</button>}
+                <button className="btn" style={{display:'inline-flex',alignItems:'center',gap:5}} onClick={onSignOut}>Desconectar</button>
+              </div>
+              <div style={{fontSize:11,color:'var(--muted)',lineHeight:1.5,paddingTop:8,borderTop:'1px dashed var(--line)'}}>
+                Los cambios se sincronizan automáticamente unos segundos después de cada edición. Si trabajás offline, se suben al volver la conexión.
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── HELP MODAL ── */
+function HelpModal({onClose}){
+  const items=[
+    ['t','Ir a Hoy'],
+    ['w','Ir a Semana'],
+    ['f','Ir a Alimentos'],
+    ['c','Ir a Combos'],
+    ['n','Nueva colación (en Hoy)'],
+    ['[ / ]','Día anterior / siguiente'],
+    ['/','Enfocar buscador'],
+  ];
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="card" style={{maxWidth:380,width:'100%',maxHeight:'90vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>Atajos de teclado</div>
+          <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>No funcionan mientras escribís en un campo</div>
+        </div>
+        <div style={{padding:'10px 18px',display:'flex',flexDirection:'column',gap:6}}>
+          {items.map(([k,d])=>(
+            <div key={k} style={{display:'flex',alignItems:'center',gap:10,padding:'4px 0',borderBottom:'1px dashed var(--line)'}}>
+              <kbd className="mono" style={{padding:'2px 7px',background:'var(--line)',borderRadius:4,fontSize:12,minWidth:36,textAlign:'center'}}>{k}</kbd>
+              <span style={{fontSize:13}}>{d}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',justifyContent:'flex-end'}}>
+          <button className="btn btn-primary" onClick={onClose}>Listo</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SettingsModal({settings,onClose,onSave}){
+  const[s,setS]=useState({...settings});
+  const sg=(k,v)=>setS(p=>({...p,goals:{...p.goals,[k]:v}}));
+  const pn=v=>{const nn=parseFloat(String(v).replace(',','.'));return isNaN(nn)?null:nn;};
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>Ajustes</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'14px 18px',display:'flex',flexDirection:'column',gap:14}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div><div style={{fontSize:14,fontWeight:500}}>Distribución de macros</div><div style={{fontSize:12,color:'var(--muted)'}}>Barra P/C/G en el total del día</div></div>
+            <label style={{display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'}}><input type="checkbox" checked={s.showDist} onChange={e=>setS(p=>({...p,showDist:e.target.checked}))}/><span style={{fontSize:13}}>Mostrar</span></label>
+          </div>
+          <div style={{height:1,background:'var(--line2)'}}/>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div><div style={{fontSize:14,fontWeight:500}}>Objetivos diarios</div><div style={{fontSize:12,color:'var(--muted)'}}>Muestra barras de progreso</div></div>
+            <label style={{display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'}}><input type="checkbox" checked={s.showGoals} onChange={e=>setS(p=>({...p,showGoals:e.target.checked}))}/><span style={{fontSize:13}}>Mostrar</span></label>
+          </div>
+          {s.showGoals&&(
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+              {[['cal','Calorías (kcal)'],['protein','Proteínas (g)'],['carbs','Carbohidratos (g)'],['fat','Grasas (g)']].map(([k,l])=>(
+                <div key={k}><label style={{fontSize:12,color:'var(--muted)'}}>{l}</label><input type="text" className="mono" style={{marginTop:3}} value={s.goals?.[k]??''} onChange={e=>sg(k,e.target.value)}/></div>
+              ))}
+              <div style={{gridColumn:'1/-1'}}><label style={{fontSize:12,color:'var(--muted)'}}>Fibra (g)</label><input type="text" className="mono" style={{marginTop:3}} value={s.goals?.fiber??''} onChange={e=>sg('fiber',e.target.value)}/></div>
+            </div>
+          )}
+          <div style={{height:1,background:'var(--line2)'}}/>
+          <div><div style={{fontSize:14,fontWeight:500,marginBottom:4}}>Objetivo de agua (ml/día)</div><input type="text" className="mono" style={{width:120}} value={s.waterGoal||2000} onChange={e=>setS(p=>({...p,waterGoal:parseInt(e.target.value)||2000}))}/></div>
+          <div><div style={{fontSize:14,fontWeight:500,marginBottom:4}}>Objetivo de peso (kg)</div><input type="text" className="mono" style={{width:120}} placeholder="Ej: 100" value={s.weightGoal||''} onChange={e=>setS(p=>({...p,weightGoal:parseFloat(e.target.value.replace(',','.'))||null}))}/><div style={{fontSize:11,color:'var(--muted)',marginTop:3}}>Se muestra como línea en el gráfico semanal</div></div>
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" onClick={()=>onSave({...s,goals:{cal:pn(s.goals?.cal),protein:pn(s.goals?.protein),carbs:pn(s.goals?.carbs),fat:pn(s.goals?.fat),fiber:pn(s.goals?.fiber)}})}>Guardar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── DUP DAY MODAL ── */
+function DupDayModal({currentDate,onClose,onDup}){
+  const[target,setTarget]=useState(shiftDate(currentDate,1));
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" style={{maxWidth:360}} onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div className="display" style={{fontSize:17,fontWeight:600}}>Duplicar comidas</div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'14px 18px',display:'flex',flexDirection:'column',gap:10}}>
+          <div style={{fontSize:13,color:'var(--ink2)'}}>Copia todas las comidas de <strong>{fmtShort(currentDate)}</strong> al día elegido. Las comidas existentes en el destino se mantienen.</div>
+          <div><label style={{fontSize:12,color:'var(--muted)'}}>Copiar a</label><input type="date" className="mono" style={{marginTop:4}} value={target} onChange={e=>setTarget(e.target.value)}/></div>
+          {target===currentDate&&<div style={{fontSize:12,color:'var(--warn)'}}>El destino es el mismo día.</div>}
+        </div>
+        <div style={{padding:'10px 18px',borderTop:'1px solid var(--line)',display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button className="btn" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" style={{display:'inline-flex',alignItems:'center',gap:4}} onClick={()=>onDup(target)} disabled={target===currentDate}><ICopy s={13}/>Copiar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── MOUNT ── */
+const root=ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
