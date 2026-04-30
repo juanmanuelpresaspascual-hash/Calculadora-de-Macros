@@ -219,117 +219,111 @@ const GDRIVE = {
   fileId: null,
   tokenClient: null,
   accessToken: null,
+  tokenExpiry: 0,
   initialized: false,
 
-  async _waitForLibs() {
-    let tries = 0;
-    while (tries < 100) {
-      if (window.gapi && window.google?.accounts?.oauth2) return;
-      await new Promise(r => setTimeout(r, 100));
-      tries++;
-    }
+  async _waitForLibs(){
+    let tries=0;
+    while(tries<100){if(window.gapi&&window.google?.accounts?.oauth2)return;await new Promise(r=>setTimeout(r,100));tries++;}
     throw new Error('Google APIs no cargaron');
   },
 
-  async init() {
-    if (this.initialized) return;
+  async init(){
+    if(this.initialized)return;
     await this._waitForLibs();
-    await new Promise((res, rej) => gapi.load('client', { callback: res, onerror: rej }));
-    await gapi.client.init({
-      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+    await new Promise((res,rej)=>gapi.load('client',{callback:res,onerror:rej}));
+    await gapi.client.init({discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']});
+    this.tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:this.CLIENT_ID,
+      scope:this.SCOPE,
+      callback:()=>{}
     });
-    this.tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: this.CLIENT_ID,
-      scope: this.SCOPE,
-      callback: () => {}
-    });
-    this.initialized = true;
+    this.initialized=true;
   },
 
-  signIn(interactive = true) {
-    return new Promise((resolve, reject) => {
-      this.tokenClient.callback = (resp) => {
-        if (resp.error) { reject(new Error(resp.error_description || resp.error)); return; }
-        this.accessToken = resp.access_token;
-        gapi.client.setToken({ access_token: resp.access_token });
-        try { localStorage.setItem('dc3_drive_signed', '1'); } catch(e){}
+  _setToken(resp){
+    this.accessToken=resp.access_token;
+    this.tokenExpiry=Date.now()+(((resp.expires_in||3599)-60)*1000);
+    gapi.client.setToken({access_token:resp.access_token});
+    try{localStorage.setItem('dc3_drive_signed','1');}catch(e){}
+  },
+
+  isTokenValid(){
+    return this.accessToken&&Date.now()<this.tokenExpiry;
+  },
+
+  signIn(interactive=true){
+    return new Promise((resolve,reject)=>{
+      this.tokenClient.callback=(resp)=>{
+        if(resp.error){reject(new Error(resp.error_description||resp.error));return;}
+        this._setToken(resp);
         resolve(resp);
       };
-      this.tokenClient.error_callback = (err) => {
-        reject(new Error(err?.message || 'Error de autenticación'));
+      this.tokenClient.error_callback=(err)=>{
+        reject(new Error(err?.message||err?.type||'Error de autenticación'));
       };
-      this.tokenClient.requestAccessToken({ prompt: interactive ? 'consent' : '' });
+      this.tokenClient.requestAccessToken({prompt:interactive?'':'none'});
     });
   },
 
-  signOut() {
-    if (this.accessToken) {
-      try { google.accounts.oauth2.revoke(this.accessToken, () => {}); } catch(e){}
+  async ensureToken(){
+    if(this.isTokenValid())return;
+    // Intentar refresh silencioso
+    try{
+      await this.signIn(false);
+    }catch(e){
+      // Si falla silencioso, pedir interactivo
+      await this.signIn(true);
     }
-    this.accessToken = null;
-    this.fileId = null;
-    if (window.gapi?.client) gapi.client.setToken(null);
-    try { localStorage.removeItem('dc3_drive_signed'); } catch(e){}
   },
 
-  async findFile() {
-    const resp = await gapi.client.drive.files.list({
-      spaces: 'appDataFolder',
-      q: `name='${this.FILE_NAME}' and trashed=false`,
-      fields: 'files(id, modifiedTime, size)',
-      pageSize: 10
+  signOut(){
+    if(this.accessToken){try{google.accounts.oauth2.revoke(this.accessToken,()=>{});}catch(e){}}
+    this.accessToken=null;
+    this.tokenExpiry=0;
+    this.fileId=null;
+    if(window.gapi?.client)gapi.client.setToken(null);
+    try{localStorage.removeItem('dc3_drive_signed');}catch(e){}
+  },
+
+  async findFile(){
+    await this.ensureToken();
+    const resp=await gapi.client.drive.files.list({
+      spaces:'appDataFolder',
+      q:`name='${this.FILE_NAME}' and trashed=false`,
+      fields:'files(id,modifiedTime)',
+      pageSize:10
     });
-    const files = resp.result.files || [];
-    if (files.length) {
-      this.fileId = files[0].id;
-      return files[0];
-    }
-    this.fileId = null;
+    const files=resp.result.files||[];
+    if(files.length){this.fileId=files[0].id;return files[0];}
+    this.fileId=null;
     return null;
   },
 
-  async load() {
-    if (!this.fileId) await this.findFile();
-    if (!this.fileId) return null;
-    const resp = await gapi.client.drive.files.get({
-      fileId: this.fileId,
-      alt: 'media'
-    });
-    if (typeof resp.body === 'string') {
-      try { return JSON.parse(resp.body); } catch(e) { return null; }
-    }
-    return resp.result || null;
+  async load(){
+    await this.ensureToken();
+    if(!this.fileId)await this.findFile();
+    if(!this.fileId)return null;
+    const resp=await gapi.client.drive.files.get({fileId:this.fileId,alt:'media'});
+    if(typeof resp.body==='string'){try{return JSON.parse(resp.body);}catch(e){return null;}}
+    return resp.result||null;
   },
 
-  async save(data) {
-    const body = JSON.stringify(data);
-    if (!this.fileId) await this.findFile();
-    if (!this.fileId) {
-      const metadata = { name: this.FILE_NAME, parents: ['appDataFolder'] };
-      const boundary = '-------dc314159265';
-      const delim = `\r\n--${boundary}\r\n`;
-      const closeDelim = `\r\n--${boundary}--`;
-      const multipartBody =
-        delim + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(metadata) +
-        delim + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + body +
-        closeDelim;
-      const resp = await gapi.client.request({
-        path: '/upload/drive/v3/files',
-        method: 'POST',
-        params: { uploadType: 'multipart', fields: 'id,modifiedTime' },
-        headers: { 'Content-Type': `multipart/related; boundary="${boundary}"` },
-        body: multipartBody
-      });
-      this.fileId = resp.result.id;
+  async save(data){
+    await this.ensureToken();
+    const body=JSON.stringify(data);
+    if(!this.fileId)await this.findFile();
+    if(!this.fileId){
+      const metadata={name:this.FILE_NAME,parents:['appDataFolder']};
+      const boundary='-------dc314159265';
+      const delim=`\r\n--${boundary}\r\n`;
+      const closeDelim=`\r\n--${boundary}--`;
+      const multipartBody=delim+'Content-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(metadata)+delim+'Content-Type: application/json; charset=UTF-8\r\n\r\n'+body+closeDelim;
+      const resp=await gapi.client.request({path:'/upload/drive/v3/files',method:'POST',params:{uploadType:'multipart',fields:'id,modifiedTime'},headers:{'Content-Type':`multipart/related; boundary="${boundary}"`},body:multipartBody});
+      this.fileId=resp.result.id;
       return resp.result;
-    } else {
-      const resp = await gapi.client.request({
-        path: `/upload/drive/v3/files/${this.fileId}`,
-        method: 'PATCH',
-        params: { uploadType: 'media', fields: 'id,modifiedTime' },
-        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-        body: body
-      });
+    }else{
+      const resp=await gapi.client.request({path:`/upload/drive/v3/files/${this.fileId}`,method:'PATCH',params:{uploadType:'media',fields:'id,modifiedTime'},headers:{'Content-Type':'application/json; charset=UTF-8'},body:body});
       return resp.result;
     }
   }
@@ -557,22 +551,35 @@ function App(){
   useEffect(()=>{
     if(syncRef.current.initDone)return;
     syncRef.current.initDone=true;
-    const wasSigned=lsGet('drive_signed','')==='1';
+    const wasSigned=localStorage.getItem('dc3_drive_signed')==='1';
     if(!wasSigned){setSyncState('idle');return;}
     (async()=>{
       try{
         await GDRIVE.init();
-        await GDRIVE.signIn(false); // silent
+        await GDRIVE.signIn(false);
         setSignedIn(true);
         await syncNow();
       }catch(e){
-        // Falló silent: usuario tendrá que reconectar manualmente
+        // Silent falló — quedarse en idle, usuario reconecta manualmente
         setSyncState('idle');
         setSignedIn(false);
       }
     })();
-    // eslint-disable-next-line
   },[]);
+
+  // Refresh token al volver al foco/tab
+  useEffect(()=>{
+    const onVisible=async()=>{
+      if(document.visibilityState!=='visible')return;
+      if(!signedIn)return;
+      if(!GDRIVE.isTokenValid()){
+        try{await GDRIVE.ensureToken();}catch(e){setSyncState('error');setSyncErr('Sesión expirada. Reconectá Drive.');setSignedIn(false);return;}
+      }
+      syncNow();
+    };
+    document.addEventListener('visibilitychange',onVisible);
+    return()=>document.removeEventListener('visibilitychange',onVisible);
+  },[signedIn,syncNow]);
 
   // Online/offline listener
   useEffect(()=>{
@@ -1884,13 +1891,12 @@ function DriveModal({onClose,signedIn,syncState,syncErr,lastSyncTs,isOnline,onSi
                 </div>
               </div>
               {syncErr&&<div style={{padding:'8px 12px',background:'rgba(168,67,31,.08)',color:'var(--warn)',borderRadius:5,fontSize:12,borderLeft:'3px solid var(--warn)',wordBreak:'break-word'}}>{syncErr}</div>}
-              <div style={{display:'flex',gap:8}}>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                 <button className="btn btn-primary" style={{flex:1,display:'inline-flex',alignItems:'center',gap:5,justifyContent:'center'}} onClick={onSyncNow} disabled={syncState==='syncing'||!isOnline}>
                   <IRefresh s={13}/>Sincronizar ahora
                 </button>
-                <button className="btn" style={{display:'inline-flex',alignItems:'center',gap:5}} onClick={onSignOut}>
-                  Desconectar
-                </button>
+                {syncState==='error'&&<button className="btn btn-primary" style={{display:'inline-flex',alignItems:'center',gap:5}} onClick={onSignIn}><ICloud s={13}/>Reconectar</button>}
+                <button className="btn" style={{display:'inline-flex',alignItems:'center',gap:5}} onClick={onSignOut}>Desconectar</button>
               </div>
               <div style={{fontSize:11,color:'var(--muted)',lineHeight:1.5,paddingTop:8,borderTop:'1px dashed var(--line)'}}>
                 Los cambios se sincronizan automáticamente unos segundos después de cada edición. Si trabajás offline, se suben al volver la conexión.
