@@ -571,7 +571,7 @@ function App(){
     const onVisible=async()=>{
       if(document.visibilityState!=='visible')return;
       if(!signedIn)return;
-      if(!GDRIVE.isTokenValid()){
+      if(!GDRIVE.isTokenValid())
         try{await GDRIVE.ensureToken();}catch(e){setSyncState('error');setSyncErr('Sesión expirada. Reconectá Drive.');setSignedIn(false);return;}
       }
       syncNow();
