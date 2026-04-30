@@ -268,13 +268,12 @@ const GDRIVE = {
 
   async ensureToken(){
     if(this.isTokenValid())return;
-    // Intentar refresh silencioso
     try{
       await this.signIn(false);
     }catch(e){
-      // Si falla silencioso, pedir interactivo
       await this.signIn(true);
     }
+  },
   },
 
   signOut(){
