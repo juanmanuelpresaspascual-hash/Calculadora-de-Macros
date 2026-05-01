@@ -485,8 +485,9 @@ function App(){
       const remoteTs=new Date(file.modifiedTime).getTime();
       const localTs=parseInt(lsGet('meta_localTs','0'))||0;
       const lastSync=parseInt(lsGet('meta_lastSyncTs','0'))||0;
-      const hasLocalChanges=localTs>lastSync;
-      const hasRemoteChanges=remoteTs>lastSync;
+      const TOLERANCE=30000; // 30 segundos de tolerancia
+      const hasLocalChanges=localTs>lastSync+TOLERANCE;
+      const hasRemoteChanges=remoteTs>lastSync+TOLERANCE;
 
       if(!hasLocalChanges&&!hasRemoteChanges){
         lsSet('meta_lastSyncTs',remoteTs);
@@ -579,6 +580,15 @@ function App(){
     document.addEventListener('visibilitychange',onVisible);
     return()=>document.removeEventListener('visibilitychange',onVisible);
   },[signedIn,syncNow]);
+
+  // Polling cada 3 minutos cuando está en foco
+  useEffect(()=>{
+    if(!signedIn)return;
+    const interval=setInterval(()=>{
+      if(document.visibilityState==='visible'&&isOnline)syncNow();
+    },3*60*1000);
+    return()=>clearInterval(interval);
+  },[signedIn,isOnline,syncNow]);
 
   // Online/offline listener
   useEffect(()=>{
