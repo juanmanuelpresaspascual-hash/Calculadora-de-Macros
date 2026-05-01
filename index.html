@@ -405,6 +405,7 @@ function App(){
     document.documentElement.setAttribute('data-theme',darkMode?'dark':'');
     lsSet('darkMode',darkMode);
   },[darkMode]);
+  const[signedIn,setSignedIn]=useState(false);
   const[syncState,setSyncState]=useState('init'); // 'init'|'idle'|'syncing'|'synced'|'error'|'offline'
   const[syncErr,setSyncErr]=useState(null);
   const[lastSyncTs,setLastSyncTs]=useState(()=>parseInt(lsGet('meta_lastSyncTs','0'))||null);
