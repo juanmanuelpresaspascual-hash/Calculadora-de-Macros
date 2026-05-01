@@ -25,6 +25,13 @@
   --muted:#8b8175;--line:#e6dec9;--line2:#d8cdb2;
   --accent:#5b6b3a;--accent2:#3f4a26;--warn:#a8431f;--gold:#b88a2c;
   --water:#3a6b8a;--safe-top:env(safe-area-inset-top,0px);
+  --bg:var(--paper);
+}
+[data-theme="dark"]{
+  --paper:#1a1812;--paper2:#211f18;--ink:#f0ebe0;--ink2:#c8bfb0;
+  --muted:#7a7268;--line:#2e2b22;--line2:#3a362c;
+  --accent:#7a9a50;--accent2:#9ab868;--warn:#d4622e;--gold:#c8a040;
+  --water:#5a9bc0;--bg:var(--paper);
 }
 html{height:100%;-webkit-text-size-adjust:100%}
 body{
@@ -213,6 +220,8 @@ const ISparkle=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="non
 const IRefresh=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>;
 const IZap=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
 const ICloud=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>;
+const IMoon=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+const ISun=({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
 
 /* ── GOOGLE DRIVE SYNC MODULE ── */
 const GDRIVE = {
@@ -391,7 +400,11 @@ function App(){
   },[view,modal]);
 
   /* ── DRIVE SYNC ── */
-  const[signedIn,setSignedIn]=useState(false);
+  const[darkMode,setDarkMode]=useState(()=>lsGet('darkMode',false));
+  useEffect(()=>{
+    document.documentElement.setAttribute('data-theme',darkMode?'dark':'');
+    lsSet('darkMode',darkMode);
+  },[darkMode]);
   const[syncState,setSyncState]=useState('init'); // 'init'|'idle'|'syncing'|'synced'|'error'|'offline'
   const[syncErr,setSyncErr]=useState(null);
   const[lastSyncTs,setLastSyncTs]=useState(()=>parseInt(lsGet('meta_lastSyncTs','0'))||null);
@@ -505,16 +518,12 @@ function App(){
         await pushToCloud();
         return;
       }
-      // Conflicto: last-write-wins
-      if(remoteTs>localTs){
+      // Conflicto: mostrar modal en lugar de pisar silenciosamente
+      if(hasLocalChanges&&hasRemoteChanges){
         const data=await GDRIVE.load();
-        applySnapshot(data);
-        lsSet('meta_lastSyncTs',remoteTs);
-        lsSet('meta_localTs',remoteTs);
-        setLastSyncTs(remoteTs);
-        setSyncState('synced');
-      }else{
-        await pushToCloud();
+        setSyncState('idle');
+        setModal({type:'syncConflict',remote:data,remoteTs,localTs});
+        return;
       }
     }catch(e){
       console.error('Sync error:',e);
@@ -665,6 +674,7 @@ function App(){
                 {icon}{label}
               </button>
             ))}
+            <button className="tab" title={darkMode?'Modo claro':'Modo oscuro'} onClick={()=>setDarkMode(v=>!v)} style={{padding:'6px 8px'}}>{darkMode?<ISun s={15}/>:<IMoon s={15}/>}</button>
             <button className="tab" title={signedIn?(syncState==='syncing'?'Sincronizando…':syncState==='error'?'Error de sincronización':syncState==='synced'?'Drive sincronizado':!isOnline?'Sin conexión':'Drive'):'Conectar Google Drive'} onClick={()=>setModal({type:'drive'})} style={{padding:'6px 8px',position:'relative'}}>
               <ICloud s={15} style={{color:!signedIn?'var(--muted)':!isOnline?'var(--muted)':syncState==='syncing'?'var(--accent2)':syncState==='error'?'var(--warn)':syncState==='synced'?'var(--accent)':'var(--ink2)'}}/>
               {signedIn&&<span style={{position:'absolute',bottom:4,right:4,width:6,height:6,borderRadius:'50%',background:!isOnline?'var(--muted)':syncState==='syncing'?'var(--accent2)':syncState==='error'?'var(--warn)':syncState==='synced'?'var(--accent)':'var(--muted)'}}/>}
@@ -697,6 +707,12 @@ function App(){
       {modal?.type==='dupDay'&&<DupDayModal currentDate={date} onClose={()=>setModal(null)} onDup={d=>{duplicateDay(d);setModal(null);}}/>}
       {modal?.type==='help'&&<HelpModal onClose={()=>setModal(null)}/>}
       {modal?.type==='drive'&&<DriveModal onClose={()=>setModal(null)} signedIn={signedIn} syncState={syncState} syncErr={syncErr} lastSyncTs={lastSyncTs} isOnline={isOnline} onSignIn={()=>driveSignIn(true)} onSignOut={driveSignOut} onSyncNow={syncNow}/>}
+      {modal?.type==='syncConflict'&&<SyncConflictModal
+        remote={modal.remote} remoteTs={modal.remoteTs} localTs={modal.localTs}
+        onUseLocal={async()=>{setModal(null);await pushToCloud();}}
+        onUseRemote={()=>{applySnapshot(modal.remote);lsSet('meta_lastSyncTs',modal.remoteTs);lsSet('meta_localTs',modal.remoteTs);setLastSyncTs(modal.remoteTs);setSyncState('synced');setModal(null);showToast('Datos de Drive aplicados');}}
+        onClose={()=>setModal(null)}
+      />
 
       {toast&&<Toast msg={toast}/>}
     </div>
@@ -1602,7 +1618,16 @@ function ComboFormModal({combo,foods,onClose,onSave}){
   const foodsArr=useMemo(()=>Object.values(foods).sort((a,b)=>a.name.localeCompare(b.name,'es')),[foods]);
   const filtered=useMemo(()=>q.trim()?foodsArr.filter(f=>fuzzy(q,f.name)>0):foodsArr,[foodsArr,q]);
   const mm=useMemo(()=>comboMacros({items},foods,1),[items,foods]);
-  const addP=()=>{if(!pf)return;const a=parseFloat(pa.replace(',','.'));if(!a||a<=0)return;setItems(p=>[...p,{id:uid(),foodId:pf.id,amount:a}]);setPf(null);setPa('');setAdding(false);setQ('');};
+  const[pMode,setPMode]=useState('unit'); // 'unit' | 'grams'
+  const pCanSwitch=pf?.basis==='per_unit'&&pf?.weightPerUnit;
+  const addP=()=>{
+    if(!pf)return;
+    const v=parseFloat(pa.replace(',','.'));
+    if(!v||v<=0)return;
+    const amount=(pCanSwitch&&pMode==='grams')?v/pf.weightPerUnit:v;
+    setItems(p=>[...p,{id:uid(),foodId:pf.id,amount}]);
+    setPf(null);setPa('');setPMode('unit');setAdding(false);setQ('');
+  };
   return(
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={e=>e.stopPropagation()}>
@@ -1639,10 +1664,16 @@ function ComboFormModal({combo,foods,onClose,onSave}){
               ):(
                 <>
                   <div style={{fontSize:13,fontWeight:500,marginBottom:6}}>{pf.name}</div>
+                  {pCanSwitch&&(
+                    <div style={{display:'flex',gap:4,marginBottom:8}}>
+                      <button className={`btn btn-xs${pMode==='unit'?' btn-primary':''}`} onClick={()=>{setPMode('unit');setPa('');}}>Unidades</button>
+                      <button className={`btn btn-xs${pMode==='grams'?' btn-primary':''}`} onClick={()=>{setPMode('grams');setPa('');}}>Gramos</button>
+                    </div>
+                  )}
                   <div style={{display:'flex',gap:6}}>
-                    <input type="text" className="mono" style={{flex:1,fontSize:13}} placeholder={`Cantidad (${BU[pf.basis]})`} value={pa} onChange={e=>setPa(e.target.value)} autoFocus onKeyDown={e=>{if(e.key==='Enter')addP();}}/>
+                    <input type="text" className="mono" style={{flex:1,fontSize:13}} placeholder={pCanSwitch&&pMode==='grams'?`Cantidad (g) — 1u = ${pf.weightPerUnit}g`:`Cantidad (${BU[pf.basis]})`} value={pa} onChange={e=>setPa(e.target.value)} autoFocus onKeyDown={e=>{if(e.key==='Enter')addP();}}/>
                     <button className="btn btn-primary btn-sm" onClick={addP}>+</button>
-                    <button className="btn btn-ghost btn-sm" onClick={()=>setPf(null)}>←</button>
+                    <button className="btn btn-ghost btn-sm" onClick={()=>{setPf(null);setPMode('unit');}}>←</button>
                   </div>
                 </>
               )}
@@ -1825,6 +1856,48 @@ function ExportModal({day,foods,combos,onClose,showToast}){
 }
 
 /* ── SETTINGS MODAL ── */
+/* ── SYNC CONFLICT MODAL ── */
+function SyncConflictModal({remote,remoteTs,localTs,onUseLocal,onUseRemote,onClose}){
+  const fmt=ts=>{if(!ts)return'—';const d=new Date(ts);return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;};
+  const localSnap={foods:lsGet('foods',{}),days:{}};
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith('dc3_day:'))localSnap.days[k.replace('dc3_day:','')]=1;}
+  const localFoods=Object.keys(localSnap.foods).length;
+  const localDays=Object.keys(localSnap.days).length;
+  const remoteFoods=Object.keys(remote?.foods||{}).length;
+  const remoteDays=Object.keys(remote?.days||{}).length;
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="card" style={{maxWidth:460,width:'100%'}} onClick={e=>e.stopPropagation()}>
+        <div style={{padding:'14px 18px',borderBottom:'1px solid var(--line)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{fontSize:18}}>⚠️</span>
+            <div className="display" style={{fontSize:17,fontWeight:600}}>Conflicto de sincronización</div>
+          </div>
+          <button className="btn btn-ghost" style={{padding:'4px 6px'}} onClick={onClose}><IX/></button>
+        </div>
+        <div style={{padding:'16px 18px',display:'flex',flexDirection:'column',gap:12}}>
+          <div style={{fontSize:13,color:'var(--ink2)'}}>Hay cambios en esta compu <strong>y</strong> en Drive que no están sincronizados. ¿Con cuál te quedás?</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            <div style={{padding:'12px',borderRadius:6,border:'2px solid var(--line)',display:'flex',flexDirection:'column',gap:6}}>
+              <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.06em',color:'var(--muted)'}}>Esta compu</div>
+              <div className="mono" style={{fontSize:12,color:'var(--accent)',fontWeight:600}}>{fmt(localTs)}</div>
+              <div style={{fontSize:12,color:'var(--ink2)'}}>{localFoods} alimentos · {localDays} días</div>
+              <button className="btn btn-primary btn-sm" style={{marginTop:4}} onClick={onUseLocal}>Usar esta compu</button>
+            </div>
+            <div style={{padding:'12px',borderRadius:6,border:'2px solid var(--line)',display:'flex',flexDirection:'column',gap:6}}>
+              <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.06em',color:'var(--muted)'}}>Drive</div>
+              <div className="mono" style={{fontSize:12,color:'var(--accent)',fontWeight:600}}>{fmt(remoteTs)}</div>
+              <div style={{fontSize:12,color:'var(--ink2)'}}>{remoteFoods} alimentos · {remoteDays} días</div>
+              <button className="btn btn-sm" style={{marginTop:4}} onClick={onUseRemote}>Usar Drive</button>
+            </div>
+          </div>
+          <div style={{fontSize:11,color:'var(--muted)',paddingTop:4,borderTop:'1px dashed var(--line)'}}>La versión que no elijas se va a perder. Si no estás seguro, cerrá este diálogo y hacé un backup manual primero.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── DRIVE MODAL ── */
 function DriveModal({onClose,signedIn,syncState,syncErr,lastSyncTs,isOnline,onSignIn,onSignOut,onSyncNow}){
   const fmtTs=(ts)=>{
