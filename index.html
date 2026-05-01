@@ -21,17 +21,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --paper:#f7f2e8;--paper2:#fdfaf2;--ink:#1c1812;--ink2:#4a4239;
-  --muted:#8b8175;--line:#e6dec9;--line2:#d8cdb2;
-  --accent:#5b6b3a;--accent2:#3f4a26;--warn:#a8431f;--gold:#b88a2c;
-  --water:#3a6b8a;--safe-top:env(safe-area-inset-top,0px);
-  --bg:var(--paper);
-}
-[data-theme="dark"]{
   --paper:#1a1812;--paper2:#211f18;--ink:#f0ebe0;--ink2:#c8bfb0;
   --muted:#7a7268;--line:#2e2b22;--line2:#3a362c;
   --accent:#7a9a50;--accent2:#9ab868;--warn:#d4622e;--gold:#c8a040;
-  --water:#5a9bc0;--bg:var(--paper);
+  --water:#5a9bc0;--safe-top:env(safe-area-inset-top,0px);
 }
 html{height:100%;-webkit-text-size-adjust:100%}
 body{
@@ -400,11 +393,6 @@ function App(){
   },[view,modal]);
 
   /* ── DRIVE SYNC ── */
-  const[darkMode,setDarkMode]=useState(()=>lsGet('darkMode',false));
-  useEffect(()=>{
-    document.documentElement.setAttribute('data-theme',darkMode?'dark':'');
-    lsSet('darkMode',darkMode);
-  },[darkMode]);
   const[signedIn,setSignedIn]=useState(false);
   const[syncState,setSyncState]=useState('init'); // 'init'|'idle'|'syncing'|'synced'|'error'|'offline'
   const[syncErr,setSyncErr]=useState(null);
@@ -675,7 +663,6 @@ function App(){
                 {icon}{label}
               </button>
             ))}
-            <button className="tab" title={darkMode?'Modo claro':'Modo oscuro'} onClick={()=>setDarkMode(v=>!v)} style={{padding:'6px 8px'}}>{darkMode?<ISun s={15}/>:<IMoon s={15}/>}</button>
             <button className="tab" title={signedIn?(syncState==='syncing'?'Sincronizando…':syncState==='error'?'Error de sincronización':syncState==='synced'?'Drive sincronizado':!isOnline?'Sin conexión':'Drive'):'Conectar Google Drive'} onClick={()=>setModal({type:'drive'})} style={{padding:'6px 8px',position:'relative'}}>
               <ICloud s={15} style={{color:!signedIn?'var(--muted)':!isOnline?'var(--muted)':syncState==='syncing'?'var(--accent2)':syncState==='error'?'var(--warn)':syncState==='synced'?'var(--accent)':'var(--ink2)'}}/>
               {signedIn&&<span style={{position:'absolute',bottom:4,right:4,width:6,height:6,borderRadius:'50%',background:!isOnline?'var(--muted)':syncState==='syncing'?'var(--accent2)':syncState==='error'?'var(--warn)':syncState==='synced'?'var(--accent)':'var(--muted)'}}/>}
@@ -713,7 +700,7 @@ function App(){
         onUseLocal={async()=>{setModal(null);await pushToCloud();}}
         onUseRemote={()=>{applySnapshot(modal.remote);lsSet('meta_lastSyncTs',modal.remoteTs);lsSet('meta_localTs',modal.remoteTs);setLastSyncTs(modal.remoteTs);setSyncState('synced');setModal(null);showToast('Datos de Drive aplicados');}}
         onClose={()=>setModal(null)}
-      />
+      />}
 
       {toast&&<Toast msg={toast}/>}
     </div>
